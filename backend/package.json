@@ -12,5 +12,20 @@
   "scripts": {
     "start": "cds-serve"
   },
-  "private": true
+  "private": true,
+  "cds": {
+    "requires": {
+      "auth": {
+        "kind": "mocked",
+        "users": {
+          "sebas": {
+            "password": "123",
+            "roles": [
+              "admin"
+            ]
+          }
+        }
+      }
+    }
+  }
 }

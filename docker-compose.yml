@@ -6,12 +6,18 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      target: build
     container_name: whistle-front
     restart: always
     ports:
-      - "8080:80"
+      - "8080:4200"
     networks:
       - whistle-net
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    # Polling es necesario en algunos sistemas para detectar cambios en volúmenes Docker
+    command: npm start -- --host 0.0.0.0 --poll 2000
     depends_on:
       - backend
 
@@ -30,6 +36,7 @@ services:
       - ./backend:/app
       # El volumen "escudo" para proteger node_modules
       - backend_node_modules:/app/node_modules
+    command: cds watch
 
 networks:
   whistle-net:

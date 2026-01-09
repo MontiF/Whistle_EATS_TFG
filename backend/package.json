@@ -3,18 +3,26 @@
   "version": "1.0.0",
   "description": "A simple CAP project.",
   "dependencies": {
-    "@sap/cds": "^9",
+    "@cap-js/postgres": "^1.14.2",
+    "@sap/cds": "^8",
     "express": "^4"
   },
   "devDependencies": {
     "@cap-js/sqlite": "^2"
   },
   "scripts": {
-    "start": "cds-serve"
+    "start": "cds-serve",
+    "deploy": "cds deploy"
   },
   "private": true,
   "cds": {
     "requires": {
+      "db": {
+        "kind": "postgres",
+        "credentials": {
+          "url": "$DATABASE_URL"
+        }
+      },
       "auth": {
         "kind": "mocked",
         "users": {

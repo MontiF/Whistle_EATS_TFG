@@ -17,17 +17,16 @@
   "private": true,
   "cds": {
     "requires": {
-      "db": {
+      "postgres": {
         "kind": "postgres",
         "credentials": {
-          "host": "aws-1-eu-west-1.pooler.supabase.com",
-          "port": 5432,
-          "user": "postgres.mmkigywgdogthcyshrna",
-          "password": "RobertoSebasMiguel",
-          "database": "postgres",
+          "url": "$DATABASE_URL",
           "ssl": {
             "rejectUnauthorized": false
           }
+        },
+        "pool": {
+          "acquireTimeoutMillis": 60000
         }
       },
       "auth": {

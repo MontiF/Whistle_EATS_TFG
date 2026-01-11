@@ -8,7 +8,7 @@
     "express": "^4"
   },
   "devDependencies": {
-    "@cap-js/sqlite": "^1"
+    "sqlite3": "^5.1.7"
   },
   "scripts": {
     "start": "cds-serve",
@@ -20,7 +20,14 @@
       "db": {
         "kind": "postgres",
         "credentials": {
-          "url": "$DATABASE_URL"
+          "host": "aws-1-eu-west-1.pooler.supabase.com",
+          "port": 5432,
+          "user": "postgres.mmkigywgdogthcyshrna",
+          "password": "RobertoSebasMiguel",
+          "database": "postgres",
+          "ssl": {
+            "rejectUnauthorized": false
+          }
         }
       },
       "auth": {

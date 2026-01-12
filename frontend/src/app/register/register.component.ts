@@ -12,4 +12,5 @@ import { RouterLink } from '@angular/router';
 })
 export class RegisterComponent {
     userType = signal<string>('');
+    vehicleType = signal<string>('');
 }

@@ -70,6 +70,9 @@
                 <label for="deliveryName">Nombre Completo</label>
                 <input type="text" id="deliveryName" name="deliveryName" placeholder="Tu nombre">
 
+                <label for="dni">DNI</label>
+                <input type="text" id="dni" name="dni" placeholder="DNI">
+
                 <label for="phone">Teléfono</label>
                 <input type="text" id="phone" name="phone" placeholder="Teléfono">
 
@@ -81,6 +84,32 @@
 
                 <label for="confirmPassword">Confirmar contraseña</label>
                 <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirmar contraseña">
+
+                <label for="vehicleType">Tipo de vehiculo</label>
+                <select name="vehicleType" id="vehicleType" [(ngModel)]="vehicleType">
+                    <option value="">Selecciona opción</option>
+                    <option value="bicicleta">Bici</option>
+                    <option value="moto">Moto</option>
+                    <option value="coche">Coche</option>
+                </select>
+
+                @if (vehicleType() === 'moto' || vehicleType() === 'coche') {
+                <label for="vehiclePlate">Matricula</label>
+                <input type="text" id="vehiclePlate" name="vehiclePlate" placeholder="Matricula">
+
+                <label for="vehicleBrand">Marca</label>
+                <input type="text" id="vehicleBrand" name="vehicleBrand" placeholder="Marca">
+
+                <label for="vehicleModel">Modelo</label>
+                <input type="text" id="vehicleModel" name="vehicleModel" placeholder="Modelo">
+
+                <label for="vehicleColor">Color</label>
+                <input type="text" id="vehicleColor" name="vehicleColor" placeholder="Color">
+
+                <label for="drivingLicense">Carnet de conducir</label>
+                <input type="text" id="drivingLicense" name="drivingLicense" placeholder="12365177 - G">
+                <small class="help-text">Casilla número 5 del anverso del permiso</small>
+                }
 
                 <button type="submit">Registrarse</button>
             </div>

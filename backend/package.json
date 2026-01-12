@@ -18,15 +18,9 @@
   "cds": {
     "requires": {
       "db": {
-        "kind": "postgres",
+        "kind": "sqlite",
         "credentials": {
-          "url": "$DATABASE_URL",
-          "ssl": {
-            "rejectUnauthorized": false
-          }
-        },
-        "pool": {
-          "acquireTimeoutMillis": 60000
+          "url": "db.sqlite"
         }
       },
       "auth": {

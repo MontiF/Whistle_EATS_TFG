@@ -190,3 +190,14 @@ button[type="submit"]:active {
     margin-left: 0.25rem;
     margin-bottom: 0.5rem;
 }
+
+.error-text {
+    font-size: 0.75rem;
+    color: #dc2626;
+    /* Red 600 */
+    margin-top: -0.5rem;
+    margin-left: 0.25rem;
+    margin-bottom: 0.5rem;
+    display: block;
+    animation: fadeIn 0.3s ease-in-out;
+}

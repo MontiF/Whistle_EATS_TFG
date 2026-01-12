@@ -6,4 +6,7 @@ using my.bookshop as db from '../db/schema';
 service CatalogService {
     entity Products as projection on db.Products;
     entity Users    as projection on db.Users;
+    entity Drivers  as projection on db.Drivers;
+    entity Places   as projection on db.Places;
+    entity Clients  as projection on db.Clients;
 }

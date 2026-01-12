@@ -8,5 +8,13 @@ service CatalogService {
     entity Users    as projection on db.Users;
     entity Drivers  as projection on db.Drivers;
     entity Places   as projection on db.Places;
+    entity Restaurants as projection on db.Places {
+        key ID,
+        user.name as name,
+        address,
+        openingHours,
+        category,
+        products
+    };
     entity Clients  as projection on db.Clients;
 }

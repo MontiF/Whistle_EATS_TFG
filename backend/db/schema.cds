@@ -11,6 +11,7 @@ entity Products {
       stock       : Integer;
       imageUrl    : String;
       isAvailable : Boolean default true;
+      place       : Association to Places; // Link to the restaurant
 }
 
 /**
@@ -47,6 +48,7 @@ entity Places {
   address : String(200);
   openingHours : String(100);
   category : String(50); // 'Hamburguesas', 'Pizza', etc.
+  products : Composition of many Products on products.place = $self; // Link to products
 }
 
 entity Clients {

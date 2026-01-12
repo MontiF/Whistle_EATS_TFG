@@ -1,0 +1,152 @@
+:root {
+    --background-color: #121212;
+    --text-color: #ffffff;
+    --secondary-text: #a0a0a0;
+    --accent-color: #ffffff;
+    --border-color: #2c2c2c;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    /* Assuming a modern font */
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.main {
+    padding: 20px;
+    max-width: 600px;
+    /* Mobile-first view roughly */
+    margin: 0 auto;
+}
+
+#app-title h1 {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+#restaurant h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+}
+
+#products-title h3 {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Product Card Styling */
+#products {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#product {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Product Text Info */
+#texts {
+    flex: 1;
+    padding-right: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.product-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.product-price {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.product-description {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--secondary-text);
+    line-height: 1.4;
+    overflow: hidden;
+    display: -webkit-box;
+    line-clamp: 3;
+    /* Limit visible lines */
+    -webkit-box-orient: vertical;
+}
+
+/* Product Image & Button Wrapper */
+.product-image-wrapper {
+    position: relative;
+    width: 120px;
+    /* Fixed size for consistency */
+    height: 120px;
+    flex-shrink: 0;
+}
+
+.image {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+/* Edit Button (Styled like the + button in reference) */
+.edit {
+    position: absolute;
+    bottom: -10px;
+    right: -5px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: white;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10;
+    padding: 0;
+}
+
+.edit img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+}
+
+/* Add Product Button (Bottom floating structure usually, but keeping context styling) */
+.add {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.add-product {
+    background-color: #333;
+    color: white;
+    border: none;
+    font-size: 1.5rem;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+}

@@ -1,0 +1,94 @@
+<main class="main">
+    <div id="app-title">
+        <h1>Whistle Eats</h1>
+    </div>
+    <div id="app-login">
+        <h3>Registrate para comenzar</h3>
+        <form>
+            <label for="userType">Tipo de cuenta</label>
+            <select name="userType" id="userType" [(ngModel)]="userType">
+                <option value="">Selecciona una opción</option>
+                <option value="consumer">Consumidor</option>
+                <option value="restaurant">Restaurante</option>
+                <option value="delivery">Repartidor</option>
+            </select>
+
+            @if (userType() === 'consumer') {
+            <div class="form-group">
+                <label for="consumerName">Nombre Completo</label>
+                <input type="text" id="consumerName" name="consumerName" placeholder="Tu nombre">
+
+                <label for="consumerAddress">Dirección de entrega</label>
+                <input type="text" id="consumerAddress" name="consumerAddress" placeholder="Dirección">
+
+                <label for="phone">Teléfono</label>
+                <input type="text" id="phone" name="phone" placeholder="Teléfono">
+
+                <label for="email">Correo electrónico</label>
+                <input type="email" id="email" name="email" placeholder="Correo electrónico">
+
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" placeholder="Contraseña">
+
+                <label for="confirmPassword">Confirmar contraseña</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirmar contraseña">
+
+                <button type="submit">Registrarse</button>
+            </div>
+            }
+
+            @if (userType() === 'restaurant') {
+            <div class="form-group">
+                <label for="restaurantName">Nombre del Restaurante</label>
+                <input type="text" id="restaurantName" name="restaurantName" placeholder="Nombre del restaurante">
+
+                <label for="cif">CIF</label>
+                <input type="text" id="cif" name="cif" placeholder="CIF del negocio">
+
+                <label for="restaurantAddress">Dirección del restaurante</label>
+                <input type="text" id="restaurantAddress" name="restaurantAddress"
+                    placeholder="Dirección del restaurante">
+
+                <label for="phone">Teléfono</label>
+                <input type="text" id="phone" name="phone" placeholder="Teléfono">
+
+                <label for="email">Correo electrónico</label>
+                <input type="email" id="email" name="email" placeholder="Correo electrónico">
+
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" placeholder="Contraseña">
+
+                <label for="confirmPassword">Confirmar contraseña</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirmar contraseña">
+
+                <button type="submit">Registrarse</button>
+            </div>
+            }
+
+            @if (userType() === 'delivery') {
+            <div class="form-group">
+                <label for="deliveryName">Nombre Completo</label>
+                <input type="text" id="deliveryName" name="deliveryName" placeholder="Tu nombre">
+
+                <label for="phone">Teléfono</label>
+                <input type="text" id="phone" name="phone" placeholder="Teléfono">
+
+                <label for="email">Correo electrónico</label>
+                <input type="email" id="email" name="email" placeholder="Correo electrónico">
+
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" placeholder="Contraseña">
+
+                <label for="confirmPassword">Confirmar contraseña</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirmar contraseña">
+
+                <button type="submit">Registrarse</button>
+            </div>
+            }
+        </form>
+    </div>
+    <div style="margin-top: 1rem; text-align: center;">
+        <p>¿Ya tienes cuenta? <a [routerLink]="['/login']"
+                style="color: #ff9800; text-decoration: none; font-weight: 600; cursor: pointer;">Inicia sesión</a></p>
+    </div>
+</main>

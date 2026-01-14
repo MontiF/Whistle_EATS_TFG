@@ -1,104 +1,171 @@
-:root {
-    --background-color: #121212;
-    --text-color: #ffffff;
-    --secondary-text: #a0a0a0;
-    --accent-color: #ffffff;
-    --border-color: #2c2c2c;
-}
-
-body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    /* Asumiendo una fuente moderna */
-    background-color: var(--background-color);
-    color: var(--text-color);
+:host {
+    display: block;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #333;
+    line-height: 1.5;
+    --primary-color: #ff9800;
+    /* Naranja vibrante */
+    --primary-hover: #f57c00;
+    /* Naranja más oscuro */
+    --bg-gradient: linear-gradient(135deg, #f6f8fb 0%, #e2e8f0 100%);
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --text-main: #1f2937;
+    --text-muted: #6b7280;
+    --border-color: #e5e7eb;
 }
 
 .main {
-    padding: 20px;
-    max-width: 600px;
-    /* Vista mobile-first aproximadamente */
-    margin: 0 auto;
+    position: relative;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    background: var(--bg-gradient);
+    overflow-y: auto;
+}
+
+#app-title {
+    position: relative;
+    text-align: center;
+    margin-bottom: 2rem;
+    z-index: 1;
+    width: 100%;
 }
 
 #app-title h1 {
-    font-size: 1.5rem;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.05em;
+}
+
+#restaurant {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 2rem;
+    border-radius: 24px;
+    box-shadow:
+        0 4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 2px 4px -1px rgba(0, 0, 0, 0.06),
+        0 20px 25px -5px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--glass-border);
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
     margin-bottom: 2rem;
-    text-align: center;
 }
 
 #restaurant h2 {
     font-size: 1.8rem;
-    margin-bottom: 1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    text-align: center;
+    margin: 0;
+}
+
+/* Estilos para las estrellas del restaurante */
+.stars {
+    display: flex;
+    justify-content: center;
+    gap: 0.2rem;
+    margin-top: 0.5rem;
+}
+
+.star {
+    font-size: 1.2rem;
+    color: #ddd;
+    transition: color 0.2s ease;
+}
+
+.star.filled {
+    color: #ffd700;
+    /* Dorado para estrellas llenas */
+}
+
+.star:hover {
+    color: #ffd700;
 }
 
 #products-title h3 {
     font-size: 1.2rem;
-    margin-bottom: 1.5rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 1rem;
+    text-decoration: underline;
 }
 
 /* Estilo de tarjeta de producto */
 #products {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 1rem;
 }
 
 #product {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--border-color);
+    padding: 1rem;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s ease;
+}
+
+#product:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* Información de texto del producto */
 #texts {
     flex: 1;
-    padding-right: 15px;
+    padding-right: 1rem;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 0.5rem;
 }
 
 .product-title {
     margin: 0;
     font-size: 1.1rem;
     font-weight: 600;
+    color: var(--text-main);
 }
 
 .product-price {
     margin: 0;
     font-size: 1rem;
     font-weight: 500;
-    color: var(--text-color);
+    color: var(--primary-color);
 }
 
 .product-description {
     margin: 0;
     font-size: 0.85rem;
-    color: var(--secondary-text);
+    color: var(--text-muted);
     line-height: 1.4;
     overflow: hidden;
     display: -webkit-box;
-    line-clamp: 3;
-    /* Limitar líneas visibles */
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
 }
 
 /* Imagen del producto y envoltura del botón */
 .product-image-wrapper {
     position: relative;
-    width: 120px;
-    /* Tamaño fijo para consistencia */
-    height: 120px;
+    width: 100px;
+    height: 100px;
     flex-shrink: 0;
-}
-
-.image {
-    display: block;
-    width: 100%;
-    height: 100%;
 }
 
 .image img {
@@ -108,15 +175,15 @@ body {
     border-radius: 12px;
 }
 
-/* Botón de editar (Estilizado como el botón + en la referencia) */
+/* Botón de editar */
 .edit {
     position: absolute;
     bottom: -10px;
     right: -5px;
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background-color: white;
+    background: var(--primary-color);
     border: none;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     display: flex;
@@ -125,30 +192,120 @@ body {
     cursor: pointer;
     z-index: 10;
     padding: 0;
+    transition: all 0.2s ease;
+}
+
+.edit:hover {
+    background: var(--primary-hover);
+    transform: scale(1.1);
 }
 
 .edit img {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     object-fit: contain;
 }
 
-/* Botón de añadir producto (Estructura flotante inferior usualmente, pero manteniendo estilo de contexto) */
+/* Botón de añadir producto */
 .add {
     display: flex;
     justify-content: center;
-    margin-top: 20px;
+    margin-top: 2rem;
 }
 
 .add-product {
-    background-color: #333;
-    color: white;
+    background: var(--primary-color);
+    color: rgb(0, 0, 0);
     border: none;
     font-size: 1.5rem;
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    padding-bottom: 5px;
     font-weight: bold;
     cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+}
+
+.add-product:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 152, 0, 0.4);
+}
+
+.add-product:active {
+    transform: translateY(0);
+}
+
+/* Optimizaciones para móvil */
+@media (max-width: 480px) {
+    .main {
+        padding: 1rem;
+    }
+
+    #app-title h1 {
+        font-size: 1.8rem;
+    }
+
+    #restaurant {
+        padding: 1rem;
+        max-width: 100%;
+        margin-bottom: 1rem;
+    }
+
+    #restaurant h2 {
+        font-size: 1.5rem;
+    }
+
+    .stars {
+        gap: 0.1rem;
+    }
+
+    .star {
+        font-size: 1rem;
+    }
+
+    #products-title h3 {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    #product {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem;
+    }
+
+    .product-image-wrapper {
+        width: 100px;
+        height: 100px;
+    }
+
+    #texts {
+        padding-right: 0;
+        text-align: center;
+    }
+
+    .product-title {
+        font-size: 1rem;
+    }
+
+    .product-price {
+        font-size: 0.9rem;
+    }
+
+    .product-description {
+        font-size: 0.8rem;
+    }
+
+    .add {
+        margin-top: 1rem;
+    }
+
+    .add-product {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
 }

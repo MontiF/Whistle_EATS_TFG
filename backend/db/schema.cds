@@ -52,8 +52,6 @@ entity Places {
   user : Association to Users;
   cif : String(20);
   address : String(200);
-  openingHours : String(100);
-  category : String(50); // 'Hamburguesas', 'Pizza', etc.
   products : Composition of many Products on products.place = $self; // Link to products
 }
 

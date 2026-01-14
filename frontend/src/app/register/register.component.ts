@@ -70,7 +70,7 @@ export class RegisterComponent {
         // Reiniciar validadores para campos específicos según el tipo
         const consumerFields = ['consumerName', 'consumerAddress'];
         const restaurantFields = ['restaurantName', 'cif', 'restaurantAddress'];
-        const deliveryFields = ['deliveryName', 'dni']; // DNI is here
+        const deliveryFields = ['deliveryName', 'dni']; // El DNI va aquí
 
         // Limpiar todo primero
         [...consumerFields, ...restaurantFields, ...deliveryFields].forEach(field => {

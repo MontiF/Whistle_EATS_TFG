@@ -9,7 +9,7 @@
 body {
     margin: 0;
     font-family: 'Inter', sans-serif;
-    /* Assuming a modern font */
+    /* Asumiendo una fuente moderna */
     background-color: var(--background-color);
     color: var(--text-color);
 }
@@ -17,7 +17,7 @@ body {
 .main {
     padding: 20px;
     max-width: 600px;
-    /* Mobile-first view roughly */
+    /* Vista mobile-first aproximadamente */
     margin: 0 auto;
 }
 
@@ -37,7 +37,7 @@ body {
     margin-bottom: 1.5rem;
 }
 
-/* Product Card Styling */
+/* Estilo de tarjeta de producto */
 #products {
     display: flex;
     flex-direction: column;
@@ -52,7 +52,7 @@ body {
     border-bottom: 1px solid var(--border-color);
 }
 
-/* Product Text Info */
+/* Información de texto del producto */
 #texts {
     flex: 1;
     padding-right: 15px;
@@ -82,15 +82,15 @@ body {
     overflow: hidden;
     display: -webkit-box;
     line-clamp: 3;
-    /* Limit visible lines */
+    /* Limitar líneas visibles */
     -webkit-box-orient: vertical;
 }
 
-/* Product Image & Button Wrapper */
+/* Imagen del producto y envoltura del botón */
 .product-image-wrapper {
     position: relative;
     width: 120px;
-    /* Fixed size for consistency */
+    /* Tamaño fijo para consistencia */
     height: 120px;
     flex-shrink: 0;
 }
@@ -108,7 +108,7 @@ body {
     border-radius: 12px;
 }
 
-/* Edit Button (Styled like the + button in reference) */
+/* Botón de editar (Estilizado como el botón + en la referencia) */
 .edit {
     position: absolute;
     bottom: -10px;
@@ -133,7 +133,7 @@ body {
     object-fit: contain;
 }
 
-/* Add Product Button (Bottom floating structure usually, but keeping context styling) */
+/* Botón de añadir producto (Estructura flotante inferior usualmente, pero manteniendo estilo de contexto) */
 .add {
     display: flex;
     justify-content: center;

@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { SupabaseService } from '../services/supabase.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
 })
 export class LoginComponent {
     private fb = inject(FormBuilder);
-    private http = inject(HttpClient);
+    private supabaseService = inject(SupabaseService);
     private router = inject(Router);
 
     loginForm = this.fb.group({
@@ -31,39 +31,19 @@ export class LoginComponent {
 
         const { email, password } = this.loginForm.value;
 
-        // Consultamos al backend simulado
-        const url = `http://localhost:4004/odata/v4/catalog/Users?$filter=email eq '${email}'`;
+        if (!email || !password) return;
 
-        this.http.get<any>(url).subscribe({
-            next: (response) => {
-                // OData devuelve los datos en la propiedad 'value'
-                const users = response.value || [];
+        this.supabaseService.signIn(email, password).then(({ data, error }) => {
+            if (error) {
+                console.error('Error de inicio de sesión:', error.message);
+                this.errorMessage = 'Credenciales inválidas o error en el servicio: ' + error.message;
+                return;
+            }
 
-                if (users.length === 0) {
-                    this.errorMessage = 'Usuario no encontrado';
-                    return;
-                }
-
-                const user = users[0];
-                if (user.password !== password) {
-                    this.errorMessage = 'Contraseña incorrecta';
-                    return;
-                }
-
-                // Login exitoso - Redirección según rol
-                if (user.role === 'repartidor') {
-                    // this.router.navigate(['/delivery']); // TODO: Crear ruta
-                    alert(`Bienvenido Repartidor ${user.name}`);
-                } else if (user.role === 'admin') {
-                    alert(`Bienvenido Admin ${user.name}`);
-                } else {
-                    // this.router.navigate(['/home']); // TODO: Crear ruta
-                    alert(`Bienvenido Cliente ${user.name}`);
-                }
-            },
-            error: (err) => {
-                console.error('Error de conexión:', err);
-                this.errorMessage = 'Error al conectar con el servidor. Asegúrate de que el backend esté corriendo en el puerto 4004.';
+            if (data.user) {
+                // Login exitoso
+                alert(`Login Exitoso! ID: ${data.user.id}`);
+                // this.router.navigate(['/home']);
             }
         });
     }

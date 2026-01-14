@@ -23,6 +23,7 @@ entity Users {
       password : String(100); // Texto plano solo para pruebas
       role     : String(20);  // 'cliente', 'repartidor', 'local'
       name     : String(100);
+      phone    : String(20);
       
       // Relaciones 1 a 1 (Opcionales)
       // Si el rol es 'repartidor', tendrá datos en 'driver'
@@ -38,6 +39,11 @@ entity Drivers {
   user : Association to Users;
   vehicleType : String(50); // 'Moto', 'Bici', 'Coche'
   vehiclePlate : String(7);
+  dni : String(20);
+  vehicleBrand : String(50);
+  vehicleModel : String(50);
+  vehicleColor : String(30);
+  drivingLicense : String(50);
   isAvailable : Boolean default false;
 }
 
@@ -55,5 +61,4 @@ entity Clients {
     key ID : UUID;
     user : Association to Users;
     defaultAddress : String(200);
-    phone : String(20);
 }

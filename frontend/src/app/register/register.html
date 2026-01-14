@@ -110,7 +110,10 @@
                 <input type="email" id="email" formControlName="email" placeholder="Correo electrónico">
 
                 <label for="password">Contraseña</label>
-                <input type="password" id="password" formControlName="password" placeholder="Contraseña">
+                @if (registerForm.get('password')?.touched &&
+                registerForm.get('password')?.errors?.['passwordStrength']) {
+                <small class="error-text">Min 8 caracteres, 1 mayus, 1 minus, 1 numero</small>
+                }
 
                 <label for="confirmPassword">Confirmar contraseña</label>
                 <input type="password" id="confirmPassword" formControlName="confirmPassword"

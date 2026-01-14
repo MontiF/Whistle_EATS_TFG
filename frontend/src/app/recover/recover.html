@@ -1,0 +1,37 @@
+<main class="main">
+    <div id="app-title">
+        <h1>Whistle Eats</h1>
+    </div>
+    <div id="app-login">
+        <h3>Recupera tu contraseña</h3>
+        <form [formGroup]="recoverForm">
+            <input type="email" formControlName="email" placeholder="Email" />
+            @if (recoverForm.get('email')?.touched && recoverForm.get('email')?.errors?.['email']) {
+            <small class="error-text">Correo electrónico inválido</small>
+            }
+
+            <button type="button" class="primary-btn" (click)="sendRecoveryEmail()">Mandar mail de recuperación</button>
+            <p>Si no recibes el mail en unos minutos, comprueba la carpeta de spam</p>
+
+            <input type="text" formControlName="recoveryCode" placeholder="Código de recuperación" />
+
+            <input type="password" formControlName="newPassword" placeholder="Nueva contraseña" />
+            @if (recoverForm.get('newPassword')?.touched &&
+            recoverForm.get('newPassword')?.errors?.['passwordStrength']) {
+            <small class="error-text">Min 8 caracteres, 1 mayus, 1 minus, 1 numero</small>
+            }
+
+            <input type="password" formControlName="confirmPassword" placeholder="Confirmar contraseña" />
+            @if (recoverForm.get('confirmPassword')?.touched &&
+            recoverForm.get('confirmPassword')?.errors?.['passwordMismatch']) {
+            <small class="error-text">Las contraseñas no coinciden</small>
+            }
+
+            <button type="button" class="primary-btn" (click)="resetPassword()">Cambiar contraseña</button>
+        </form>
+    </div>
+    <div style="margin-top: 1rem; text-align: center; color: var(--text-muted); font-size: 0.875rem;">
+        <a [routerLink]="['/login']"
+            style="color: #ff9800; text-decoration: none; font-weight: 600; cursor: pointer;">Volver al login</a>
+    </div>
+</main>

@@ -4,9 +4,9 @@
     color: #333;
     line-height: 1.5;
     --primary-color: #ff9800;
-    /* Vibrant Orange */
+    /* Naranja vibrante */
     --primary-hover: #f57c00;
-    /* Darker Orange */
+    /* Naranja más oscuro */
     --bg-gradient: linear-gradient(135deg, #f6f8fb 0%, #e2e8f0 100%);
     --glass-bg: rgba(255, 255, 255, 0.85);
     --glass-border: rgba(255, 255, 255, 0.5);
@@ -25,7 +25,7 @@
     padding: 2rem;
     background: var(--bg-gradient);
     overflow-y: auto;
-    /* Allow scrolling if form is long */
+    /* Permitir scroll si el formulario es largo */
 }
 
 #app-title {
@@ -48,7 +48,7 @@
     position: relative;
     width: 100%;
     max-width: 450px;
-    /* Slightly wider for registration form */
+    /* Ligeramente más ancho para el formulario de registro */
     background: var(--glass-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -65,7 +65,7 @@
     gap: 1.5rem;
     transition: transform 0.3s ease;
     margin-bottom: 2rem;
-    /* Spacing for scroll */
+    /* Espaciado para el scroll */
 }
 
 #app-login h3 {
@@ -124,10 +124,10 @@ select {
     transition: all 0.2s ease;
     outline: none;
     appearance: none;
-    /* Remove default arrow for select */
+    /* Eliminar flecha por defecto del select */
 }
 
-/* Custom arrow for select */
+/* Flecha personalizada para select */
 select {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
     background-position: right 0.5rem center;
@@ -194,7 +194,7 @@ button[type="submit"]:active {
 .error-text {
     font-size: 0.75rem;
     color: #dc2626;
-    /* Red 600 */
+    /* Rojo 600 */
     margin-top: -0.5rem;
     margin-left: 0.25rem;
     margin-bottom: 0.5rem;
@@ -202,7 +202,7 @@ button[type="submit"]:active {
     animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Modal Styles */
+/* Estilos del Modal */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -210,13 +210,13 @@ button[type="submit"]:active {
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
-    /* Darken background */
+    /* Oscurecer fondo */
     backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    /* Ensure it's on top */
+    /* Asegurar que está encima */
     animation: fadeIn 0.2s ease-out;
 }
 
@@ -233,7 +233,7 @@ button[type="submit"]:active {
 
 .modal-content h3 {
     color: #dc2626;
-    /* Red for error */
+    /* Rojo para error */
     margin-top: 0;
     margin-bottom: 1rem;
     font-size: 1.5rem;

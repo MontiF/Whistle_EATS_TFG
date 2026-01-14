@@ -5,7 +5,7 @@ export function dniValidator(): ValidatorFn {
         const value = control.value;
 
         if (!value) {
-            return null; // Don't validate empty values to allow optional controls
+            return null; // No validar valores vacíos para permitir controles opcionales
         }
 
         const validChars = 'TRWAGMYFPDXBNJZSQVHLCKE';

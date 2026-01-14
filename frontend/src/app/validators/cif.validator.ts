@@ -6,7 +6,7 @@ export function cifValidator(): ValidatorFn {
         if (!value) return null;
 
         const str = value.toString().toUpperCase();
-        // Restrict to commercial: A,B,C,D,E,F,G,J,N,U,V,W
+        // Restringir a comerciales: A,B,C,D,E,F,G,J,N,U,V,W
         if (!/^[ABCDEFGJNUVW][0-9]{7}[0-9A-J]$/.test(str)) {
             return { cifInvalidFormat: true };
         }
@@ -28,15 +28,15 @@ export function cifValidator(): ValidatorFn {
         const controlDigit = (10 - (sum % 10)) % 10;
         const controlLetter = 'JABCDEFGHI'.charAt(controlDigit);
 
-        // A, B, E use Numeric control digit
+        // A, B, E usan dígito de control numérico
         if (/^[ABE]/.test(letter)) {
             if (controlChar == controlDigit.toString()) return null;
         }
-        // N, W use Letter control digit (Foreign entities/Establishments)
+        // N, W usan letra de control (Entidades extranjeras/Establecimientos)
         else if (/^[NW]/.test(letter)) {
             if (controlChar == controlLetter) return null;
         }
-        // Others (C, D, F, G, J, U, V) usually numeric but can be letter in some contexts
+        // Otros (C, D, F, G, J, U, V) suelen ser numéricos pero pueden ser letras en algunos contextos
         else {
             if (controlChar == controlDigit.toString() || controlChar == controlLetter) return null;
         }

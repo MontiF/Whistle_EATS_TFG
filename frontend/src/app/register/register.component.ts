@@ -18,33 +18,33 @@ import { plateValidator } from '../validators/plate.validator';
 export class RegisterComponent {
     private fb = inject(FormBuilder);
 
-    // Signals for UI visibility (derived from form value changes could be cleaner, but keeping signals for now)
+    // Señales para la visibilidad de la UI (derivado de cambios de valor del formulario podría ser más limpio, pero mantenemos señales por ahora)
     userType = signal<string>('');
     vehicleType = signal<string>('');
 
     registerForm: FormGroup = this.fb.group({
         userType: ['', Validators.required],
 
-        // Consumer fields
+        // Campos de consumidor
         consumerName: [''],
         consumerAddress: [''],
 
-        // Shared fields
+        // Campos compartidos
         phone: ['', [Validators.required, phoneValidator()]],
         email: ['', [Validators.required, Validators.email]],
         password: ['', [Validators.required, passwordStrengthValidator()]],
         confirmPassword: ['', Validators.required],
 
-        // Restaurant fields
+        // Campos de restaurante
         restaurantName: [''],
         cif: [''],
         restaurantAddress: [''],
 
-        // Delivery fields
+        // Campos de repartidor
         deliveryName: [''],
         dni: ['', [dniValidator()]],
 
-        // Vehicle fields
+        // Campos de vehículo
         vehicleType: [''],
         vehiclePlate: [''],
         vehicleBrand: [''],
@@ -54,7 +54,7 @@ export class RegisterComponent {
     }, { validators: passwordMatchValidator('password', 'confirmPassword') });
 
     constructor() {
-        // Sync signals and validation logic
+        // Sincronizar señales y lógica de validación
         this.registerForm.get('userType')?.valueChanges.subscribe((value: string | null) => {
             this.userType.set(value || '');
             this.updateValidators(value || '');
@@ -67,18 +67,18 @@ export class RegisterComponent {
     }
 
     updateValidators(type: string) {
-        // Reset validators for specific fields based on type
+        // Reiniciar validadores para campos específicos según el tipo
         const consumerFields = ['consumerName', 'consumerAddress'];
         const restaurantFields = ['restaurantName', 'cif', 'restaurantAddress'];
         const deliveryFields = ['deliveryName', 'dni']; // DNI is here
 
-        // Clear all first
+        // Limpiar todo primero
         [...consumerFields, ...restaurantFields, ...deliveryFields].forEach(field => {
             this.registerForm.get(field)?.clearValidators();
             this.registerForm.get(field)?.updateValueAndValidity();
         });
 
-        // Set required for selected type
+        // Establecer requerido para el tipo seleccionado
         if (type === 'consumer') {
             consumerFields.forEach(field => this.registerForm.get(field)?.setValidators(Validators.required));
         } else if (type === 'restaurant') {
@@ -111,11 +111,18 @@ export class RegisterComponent {
         this.registerForm.updateValueAndValidity();
     }
 
+    showErrorModal = signal<boolean>(false);
+
     onSubmit() {
         if (this.registerForm.invalid) {
             this.registerForm.markAllAsTouched();
+            this.showErrorModal.set(true);
             return;
         }
         console.log('Form Valid', this.registerForm.value);
+    }
+
+    closeErrorModal() {
+        this.showErrorModal.set(false);
     }
 }

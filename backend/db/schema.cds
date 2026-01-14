@@ -8,55 +8,56 @@ entity Products {
       name        : String(100);
       description : String;
       price       : Decimal(9, 2);
-      stock       : Integer;
       imageUrl    : String;
-      isAvailable : Boolean default true;
-      place       : Association to Places; // Link to the restaurant
+      restaurantId       : Association to Restaurants; // Link to the restaurant
 }
 
 /**
- * Entidad de Usuarios para simular Login
+ * Entidad de Usuarios
  */
+type Role : String enum { cliente; repartidor; local; }
+
 entity Users {
   key ID       : UUID;
       email    : String(100);
-      password : String(100); // Texto plano solo para pruebas
-      role     : String(20);  // 'cliente', 'repartidor', 'local'
+      password : String(100);
+      role     : Role;
       name     : String(100);
-      phone    : String(20);
+      phone    : String(12);
       
       // Relaciones 1 a 1 (Opcionales)
       // Si el rol es 'repartidor', tendrá datos en 'driver'
-      driver   : Composition of one Drivers on driver.user = $self;
+      driver   : Association to Drivers on driver.userID = $self;
       // Si el rol es 'local', tendrá datos en 'place'
-      place    : Composition of one Places on place.user = $self;
+      restaurant    : Association to Restaurants on restaurant.userID = $self;
       // Si el rol es 'cliente', tendrá datos en 'client'
-      client   : Composition of one Clients on client.user = $self;
+      client   : Association to Clients on client.userID = $self;
 }
+
+type VehicleType : String enum { Moto; Bici; Coche; }
 
 entity Drivers {
   key ID : UUID;
-  user : Association to Users;
-  vehicleType : String(50); // 'Moto', 'Bici', 'Coche'
+  userID : Association to Users;
+  vehicleType : VehicleType;
   vehiclePlate : String(7);
   dni : String(20);
   vehicleBrand : String(50);
   vehicleModel : String(50);
   vehicleColor : String(30);
-  drivingLicense : String(50);
-  isAvailable : Boolean default false;
+  drivingLicense : String(20);
 }
 
-entity Places {
+entity Restaurants {
   key ID : UUID;
-  user : Association to Users;
+  userID : Association to Users;
   cif : String(20);
   address : String(200);
-  products : Composition of many Products on products.place = $self; // Link to products
+  products : Composition of many Products on products.restaurantId = $self;
 }
 
 entity Clients {
     key ID : UUID;
-    user : Association to Users;
+    userID : Association to Users;
     defaultAddress : String(200);
 }

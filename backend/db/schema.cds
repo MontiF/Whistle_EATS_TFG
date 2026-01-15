@@ -3,6 +3,7 @@ namespace my.bookshop; // Reemplaza con el namespace de tu proyecto
 /**
  * Entidad para representar los productos en la base de datos.
  */
+type ProductType : String enum { menu; comida; bebida; complemento; }
 entity Products {
   key ID          : UUID;
       name        : String(100);
@@ -10,6 +11,7 @@ entity Products {
       price       : Decimal(9, 2);
       imageUrl    : String;
       restaurantId       : Association to Restaurants; // Link to the restaurant
+      type        : ProductType;
 }
 
 /**

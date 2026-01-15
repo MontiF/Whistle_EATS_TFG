@@ -6,6 +6,7 @@ CREATE TABLE my_bookshop_Products (
   price DECIMAL(9, 2),
   imageUrl VARCHAR(255),
   restaurantId_ID VARCHAR(36),
+  type VARCHAR(255),
   PRIMARY KEY(ID)
 );
 

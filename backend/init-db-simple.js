@@ -66,20 +66,56 @@ async function run() {
         console.log('🛠️  Applying new schema...');
         await client.query(sql);
 
-        console.log('🌱 Seeding initial records...');
-        const users = [
-            ['11111111-1111-1111-1111-111111111111', 'cliente@test.com', '1234', 'cliente', 'Juan Cliente'],
-            ['22222222-2222-2222-2222-222222222222', 'repartidor@test.com', '1234', 'repartidor', 'Ana Repartidora'],
-            ['33333333-3333-3333-3333-333333333333', 'admin@test.com', '1234', 'admin', 'Super Admin'],
-            ['44444444-4444-4444-4444-444444444444', 'cliente2@test.com', '1234', 'cliente', 'Pepe Cliente'],
-            ['55555555-5555-5555-5555-555555555555', 'sebas_prueba@test.com', '1234', 'cliente', 'Sebas Prueba']
+        console.log('🌱 Seeding records from CSVs...');
+
+        const dataDir = path.join(__dirname, 'db', 'data');
+        const csvFiles = [
+            { file: 'my.bookshop.Users.csv', table: 'my_bookshop_Users' },
+            { file: 'my.bookshop.Clients.csv', table: 'my_bookshop_Clients' },
+            { file: 'my.bookshop.Restaurants.csv', table: 'my_bookshop_Restaurants' },
+            { file: 'my.bookshop.Drivers.csv', table: 'my_bookshop_Drivers' },
+            { file: 'my.bookshop.Products.csv', table: 'my_bookshop_Products' }
         ];
 
-        for (const user of users) {
-            await client.query(
-                'INSERT INTO my_bookshop_Users (ID, email, password, role, name) VALUES ($1, $2, $3, $4, $5)',
-                user
-            );
+        for (const { file, table } of csvFiles) {
+            const filePath = path.join(dataDir, file);
+            if (fs.existsSync(filePath)) {
+                console.log(`   Importing ${file} into ${table}...`);
+                const content = fs.readFileSync(filePath, 'utf8');
+                const lines = content.split(/\r?\n/).filter(l => l.trim() !== '');
+
+                if (lines.length > 0) {
+                    // Normalize headers: trim whitespace, remove quotes, and LOWERCASE to match Postgres unquoted columns
+                    const headers = lines[0].split(';').map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
+
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = lines[i].split(';').map(v => {
+                            let val = v.trim();
+                            // Remove surrounding quotes if present
+                            if (val.startsWith('"') && val.endsWith('"')) {
+                                val = val.slice(1, -1);
+                            }
+                            // Convert standard empty strings to null assuming strings
+                            // Ideally, we'd check types, but for this seeder, we assume strings/numbers
+                            return val === '' ? null : val;
+                        });
+
+                        // Basic validation to match header count
+                        if (values.length === headers.length) {
+                            const placeholders = headers.map((_, idx) => `$${idx + 1}`).join(', ');
+                            const insertQuery = `INSERT INTO ${table} ("${headers.join('", "')}") VALUES (${placeholders})`;
+
+                            try {
+                                await client.query(insertQuery, values);
+                            } catch (err) {
+                                console.error(`Error inserting row ${i} into ${table}:`, err.message);
+                            }
+                        }
+                    }
+                }
+            } else {
+                console.warn(`   ⚠️  File ${file} not found. Skipping.`);
+            }
         }
 
         console.log('🎉 Deployment successful! Database is now fresh and updated. 🚀');

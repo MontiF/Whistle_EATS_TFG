@@ -1,0 +1,5 @@
+ID;name;description;price;imageUrl;restaurantId_ID;type
+10000000-0000-0000-0000-000000000001;Menu del dia;Menu completo con bebida;12.50;https://placehold.co/600x400;aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa;menu
+10000000-0000-0000-0000-000000000002;Hamburguesa Especial;Con queso y bacon;9.99;https://placehold.co/600x400;aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa;comida
+10000000-0000-0000-0000-000000000003;Coca Cola Zero;Lata 33cl;2.50;https://placehold.co/600x400;aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa;bebida
+10000000-0000-0000-0000-000000000004;Patatas Fritas;Racion grande;3.50;https://placehold.co/600x400;aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa;complemento

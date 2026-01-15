@@ -36,7 +36,10 @@ services:
       - backend_node_modules:/app/node_modules
     environment:
       - HOST=0.0.0.0
-    command: cds watch
+      - PGSSLMODE=require
+    env_file:
+      - ./backend/.env
+    command: npx cds run
 
 networks:
   whistle-net:

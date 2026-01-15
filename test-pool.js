@@ -1,0 +1,1 @@
+const { Pool } = require('pg'); const pool = new Pool({ connectionString: '', ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 10000 }); pool.query('SELECT 1').then((res) => { console.log('SUCCESS:', res.rows); return pool.end(); }).catch(err => { console.error('FAILED:', err.message); process.exit(1); });

@@ -1,0 +1,1 @@
+const { Client } = require('pg'); const client = new Client({ connectionString: '', ssl: { rejectUnauthorized: false } }); client.connect().then(() => client.query('SELECT 1')).then((res) => { console.log('SUCCESS:', res.rows); client.end(); }).catch(err => { console.error('FAILED:', err.message); process.exit(1); });

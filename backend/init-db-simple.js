@@ -29,10 +29,11 @@ if (!connectionString) {
     process.exit(1);
 }
 
-// Ensure we have the latest SQL
+// Ensure we have the latest SQL (Compiling WHOLE model to get views too)
 try {
+    console.log('📦 Compiling model to SQL...');
     const { execSync } = require('child_process');
-    execSync('npx cds compile db/schema.cds --to sql --dialect postgres > schema.sql');
+    execSync('npx cds compile "*" --to sql --dialect postgres > schema.sql');
 } catch (e) {
     console.error('❌ Failed to compile schema:', e.message);
 }
@@ -47,7 +48,7 @@ const client = new Client({
 
 async function run() {
     try {
-        console.log('🔄 Connecting to Supabase (Port 6543)...');
+        console.log('🔄 Connecting to Supabase...');
         await client.connect();
         console.log('✅ Connected.');
 
@@ -88,59 +89,10 @@ async function run() {
             }
         }
 
-        console.log('🌱 Seeding records from CSVs...');
+        console.log('✅ Schema and IDs configured properly.');
+        console.log('💡 TIP: Run "node seed-db.js" if you want to populate the database with mock data.');
 
-        const dataDir = path.join(__dirname, 'db', 'data');
-        const csvFiles = [
-            { file: 'my.bookshop.Users.csv', table: 'my_bookshop_Users' },
-            { file: 'my.bookshop.Clients.csv', table: 'my_bookshop_Clients' },
-            { file: 'my.bookshop.Restaurants.csv', table: 'my_bookshop_Restaurants' },
-            { file: 'my.bookshop.Drivers.csv', table: 'my_bookshop_Drivers' },
-            { file: 'my.bookshop.Products.csv', table: 'my_bookshop_Products' }
-        ];
-
-        for (const { file, table } of csvFiles) {
-            const filePath = path.join(dataDir, file);
-            if (fs.existsSync(filePath)) {
-                console.log(`   Importing ${file} into ${table}...`);
-                const content = fs.readFileSync(filePath, 'utf8');
-                const lines = content.split(/\r?\n/).filter(l => l.trim() !== '');
-
-                if (lines.length > 0) {
-                    // Normalize headers: trim whitespace, remove quotes, and LOWERCASE to match Postgres unquoted columns
-                    const headers = lines[0].split(';').map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
-
-                    for (let i = 1; i < lines.length; i++) {
-                        const values = lines[i].split(';').map(v => {
-                            let val = v.trim();
-                            // Remove surrounding quotes if present
-                            if (val.startsWith('"') && val.endsWith('"')) {
-                                val = val.slice(1, -1);
-                            }
-                            // Convert standard empty strings to null assuming strings
-                            // Ideally, we'd check types, but for this seeder, we assume strings/numbers
-                            return val === '' ? null : val;
-                        });
-
-                        // Basic validation to match header count
-                        if (values.length === headers.length) {
-                            const placeholders = headers.map((_, idx) => `$${idx + 1}`).join(', ');
-                            const insertQuery = `INSERT INTO ${table} ("${headers.join('", "')}") VALUES (${placeholders})`;
-
-                            try {
-                                await client.query(insertQuery, values);
-                            } catch (err) {
-                                console.error(`Error inserting row ${i} into ${table}:`, err.message);
-                            }
-                        }
-                    }
-                }
-            } else {
-                console.warn(`   ⚠️  File ${file} not found. Skipping.`);
-            }
-        }
-
-        console.log('🎉 Deployment successful! Database is now fresh and updated. 🚀');
+        console.log('🎉 Deployment successful! Database structure is ready. 🚀');
     } catch (err) {
         console.error('❌ Deployment failed:', err.message);
         process.exit(1);

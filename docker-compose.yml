@@ -36,7 +36,7 @@ services:
       - backend_node_modules:/app/node_modules
     environment:
       - HOST=0.0.0.0
-      - PGSSLMODE=require
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
     env_file:
       - ./backend/.env
     command: npx cds run

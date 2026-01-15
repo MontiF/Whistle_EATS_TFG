@@ -1,7 +1,8 @@
 import { Component, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
+import { SupabaseService } from '../services/supabase.service';
 import { dniValidator } from '../validators/dni.validator';
 import { cifValidator } from '../validators/cif.validator';
 import { passwordMatchValidator, passwordStrengthValidator } from '../validators/password.validator';
@@ -17,6 +18,8 @@ import { plateValidator } from '../validators/plate.validator';
 })
 export class RegisterComponent {
     private fb = inject(FormBuilder);
+    private supabaseService = inject(SupabaseService);
+    private router = inject(Router);
 
     // Señales para la visibilidad de la UI (derivado de cambios de valor del formulario podría ser más limpio, pero mantenemos señales por ahora)
     userType = signal<string>('');
@@ -113,13 +116,22 @@ export class RegisterComponent {
 
     showErrorModal = signal<boolean>(false);
 
-    onSubmit() {
+    async onSubmit() {
         if (this.registerForm.invalid) {
             this.registerForm.markAllAsTouched();
             this.showErrorModal.set(true);
             return;
         }
-        console.log('Form Valid', this.registerForm.value);
+
+        const { error } = await this.supabaseService.registerUser(this.registerForm.value);
+
+        if (error) {
+            console.error('Error al registrar usuario:', error);
+            alert('Error al registrar usuario: ' + error.message);
+        } else {
+            alert('Registro exitoso! Por favor inicia sesión.');
+            this.router.navigate(['/login']);
+        }
     }
 
     closeErrorModal() {

@@ -48,7 +48,6 @@ export class LoginComponent {
             if (data.user) {
                 // Login exitoso
                 alert(`Login Exitoso! ID: ${data.user.id}`);
-                // this.router.navigate(['/home']);
             }
         });
     }

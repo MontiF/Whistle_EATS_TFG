@@ -15,7 +15,7 @@ services:
       - ./frontend:/app
       - /app/node_modules
     # Polling es necesario en algunos sistemas para detectar cambios en volúmenes Docker
-    command: npm start -- --host 0.0.0.0 --poll 2000
+    command: npm start -- --host 0.0.0.0 --poll 2000 --allowed-hosts
     depends_on:
       - backend
 

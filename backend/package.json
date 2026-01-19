@@ -17,8 +17,8 @@
   "private": true,
   "cds": {
     "requires": {
-      "db": {
-        "impl": "@cap-js/postgres",
+      "postgres": {
+        "kind": "postgres",
         "credentials": {
           "host": "18.202.64.2",
           "port": 5432,

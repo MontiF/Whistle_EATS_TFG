@@ -5,7 +5,7 @@ module.exports = cds.service.impl(async function () {
 
     this.on('registerUser', async (req) => {
         const { userData } = req.data;
-        const db = await cds.connect.to('db');
+        const db = await cds.connect.to('postgres');
         const tx = db.transaction(req);
 
         try {

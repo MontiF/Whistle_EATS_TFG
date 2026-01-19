@@ -18,7 +18,7 @@
   "cds": {
     "requires": {
       "db": {
-        "kind": "postgres",
+        "impl": "@cap-js/postgres",
         "credentials": {
           "host": "18.202.64.2",
           "port": 5432,

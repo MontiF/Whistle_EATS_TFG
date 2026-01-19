@@ -48,7 +48,7 @@ entity Drivers {
   vehicleModel : String(50);
   vehicleColor : String(30);
   drivingLicense : String(20);
-  hired : boolean;
+  hired : Boolean;
 }
 
 entity Restaurants {
@@ -57,7 +57,7 @@ entity Restaurants {
   cif : String(20);
   address : String(200);
   products : Composition of many Products on products.restaurantId = $self;
-  hired : boolean;
+  hired : Boolean;
 }
 
 entity Clients {

@@ -30,6 +30,7 @@ CREATE TABLE my_bookshop_Drivers (
   vehicleModel VARCHAR(50),
   vehicleColor VARCHAR(30),
   drivingLicense VARCHAR(20),
+  hired BOOLEAN DEFAULT FALSE,
   PRIMARY KEY(ID)
 );
 
@@ -38,6 +39,7 @@ CREATE TABLE my_bookshop_Restaurants (
   userID_ID VARCHAR(36),
   cif VARCHAR(20),
   address VARCHAR(200),
+  hired BOOLEAN DEFAULT FALSE,
   PRIMARY KEY(ID)
 );
 
@@ -76,7 +78,8 @@ CREATE VIEW CatalogService_Drivers AS SELECT
   Drivers_0.vehicleBrand,
   Drivers_0.vehicleModel,
   Drivers_0.vehicleColor,
-  Drivers_0.drivingLicense
+  Drivers_0.drivingLicense,
+  Drivers_0.hired
 FROM my_bookshop_Drivers AS Drivers_0;
 
 CREATE VIEW CatalogService_Restaurants AS SELECT

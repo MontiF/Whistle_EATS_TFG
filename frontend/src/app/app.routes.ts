@@ -7,6 +7,7 @@ export const routes: Routes = [
     { path: 'login', component: LoginComponent },
     { path: 'register', component: RegisterComponent },
     { path: 'restaurant', component: RestaurantComponent },
+    { path: 'dealer', loadComponent: () => import('./dealer/dealer.component').then(m => m.DealerComponent) },
     { path: 'recover', loadComponent: () => import('./recover/recover.component').then(m => m.RecoverComponent) },
     { path: '', redirectTo: 'login', pathMatch: 'full' }
 ];

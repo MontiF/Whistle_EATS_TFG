@@ -30,7 +30,6 @@ export class DealerComponent implements AfterViewInit {
     map: L.Map | undefined;
 
     ngAfterViewInit(): void {
-        // Timeout to ensure the DOM is fully rendered and container has dimensions
         setTimeout(() => {
             this.initMap();
         }, 100);
@@ -45,7 +44,6 @@ export class DealerComponent implements AfterViewInit {
             attribution: '© OpenStreetMap contributors'
         }).addTo(this.map);
 
-        // Force map resize calculation
         setTimeout(() => {
             this.map?.invalidateSize();
         }, 0);

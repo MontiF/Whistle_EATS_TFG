@@ -46,9 +46,24 @@ export class LoginComponent {
             }
 
             if (data.user) {
-                // Login exitoso
-                alert(`Login Exitoso! ID: ${data.user.id}`);
+                this.supabaseService.getUserRole(data.user.id).then(({ data, error }) => {
+                    if (error) {
+                        console.error('Error al obtener el rol del usuario:', error.message);
+                        this.errorMessage = 'Error al obtener el rol del usuario: ' + error.message;
+                        return;
+                    }
+                    if (data.role === 'repartidor' && data.hired) {
+                        this.router.navigate(['/dealer']);
+                    } else if (data.role === 'local' && data.hired) {
+                        this.router.navigate(['/restaurant']);
+                    } else if (data.role === 'cliente') {
+                        this.router.navigate(['/client']);
+                    } else {
+                        this.errorMessage = 'Usuario sin contrato, espera a que te contraten, esto puede tardar de 3 a 5 dias';
+                    }
+                })
             }
         });
     }
 }
+

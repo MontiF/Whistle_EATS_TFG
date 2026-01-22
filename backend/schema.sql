@@ -10,6 +10,27 @@ CREATE TABLE my_bookshop_Products (
   PRIMARY KEY(ID)
 );
 
+CREATE TABLE my_bookshop_Orders (
+  ID VARCHAR(36) NOT NULL,
+  clientId_ID VARCHAR(36),
+  restaurantId_ID VARCHAR(36),
+  driverId_ID VARCHAR(36),
+  totalAmount DECIMAL(9, 2),
+  status VARCHAR(255) DEFAULT 'pendiente_de_aceptacion',
+  createdAt TIMESTAMP DEFAULT current_timestamp,
+  PRIMARY KEY(ID)
+);
+
+CREATE TABLE my_bookshop_OrderItems (
+  ID VARCHAR(36) NOT NULL,
+  orderId_ID VARCHAR(36),
+  productId_ID VARCHAR(36),
+  quantity INTEGER,
+  unitPrice DECIMAL(9, 2),
+  subtotal DECIMAL(9, 2),
+  PRIMARY KEY(ID)
+);
+
 CREATE TABLE my_bookshop_Users (
   ID VARCHAR(36) NOT NULL,
   email VARCHAR(100),

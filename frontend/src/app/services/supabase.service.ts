@@ -88,4 +88,55 @@ export class SupabaseService {
         const { data } = await this.supabase.auth.getUser();
         return data.user;
     }
+
+    /**
+     * Obtiene el rol y el estado de contratación de un usuario
+     */
+    async getUserRole(userId: string): Promise<{ data: any, error: any }> {
+        try {
+            // Primero obtenemos el usuario y su rol
+            const { data: userData, error: userError } = await this.supabase
+                .from('my_bookshop_users')
+                .select('role')
+                .eq('id', userId)
+                .single();
+
+            if (userError) return { data: null, error: userError };
+
+            const role = userData.role;
+            let hired = false;
+
+            // Según el rol, consultar la tabla correspondiente
+            if (role === 'repartidor') {
+                const { data: driverData, error: driverError } = await this.supabase
+                    .from('my_bookshop_drivers')
+                    .select('hired')
+                    .eq('userid_id', userId)
+                    .single();
+
+                if (!driverError && driverData) {
+                    hired = driverData.hired;
+                }
+            } else if (role === 'local') {
+                const { data: restaurantData, error: restaurantError } = await this.supabase
+                    .from('my_bookshop_restaurants')
+                    .select('hired')
+                    .eq('userid_id', userId)
+                    .single();
+
+                if (!restaurantError && restaurantData) {
+                    hired = restaurantData.hired;
+                }
+            } else if (role === 'cliente') {
+                hired = true; // Los clientes no necesitan ser "contratados"
+            }
+
+            return {
+                data: { role, hired },
+                error: null
+            };
+        } catch (err: any) {
+            return { data: null, error: err };
+        }
+    }
 }

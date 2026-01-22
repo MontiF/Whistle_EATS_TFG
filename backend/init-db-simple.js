@@ -52,42 +52,41 @@ async function run() {
         await client.connect();
         console.log('✅ Connected.');
 
-        console.log('🗑️  Cleaning up existing tables...');
-        const tables = [
-            'my_bookshop_Clients',
-            'my_bookshop_Restaurants',
-            'my_bookshop_Drivers',
-            'my_bookshop_Users',
-            'my_bookshop_Products'
-        ];
-        for (const table of tables) {
-            await client.query(`DROP TABLE IF EXISTS ${table} CASCADE`);
-        }
+        console.log('🗑️  Cleaning up existing tables and views...');
+        
+        // Drop all views first to avoid dependency issues
+        await client.query(`
+            DO $$ 
+            DECLARE 
+                r RECORD; 
+            BEGIN 
+                FOR r IN SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename LIKE 'my_bookshop_%' 
+                LOOP 
+                    EXECUTE 'DROP TABLE IF EXISTS ' || quote_ident(r.tablename) || ' CASCADE'; 
+                END LOOP; 
+            END $$;
+        `);
+        
+        // Alternative: drop all views explicitly
+        await client.query(`
+            DO $$ 
+            DECLARE 
+                r RECORD; 
+            BEGIN 
+                FOR r IN SELECT viewname FROM pg_views WHERE schemaname = 'public' AND viewname LIKE 'my_bookshop_%' 
+                LOOP 
+                    EXECUTE 'DROP VIEW IF EXISTS ' || quote_ident(r.viewname) || ' CASCADE'; 
+                END LOOP; 
+            END $$;
+        `);
 
-        console.log('🛠️  Applying new schema...');
-        await client.query(sql);
-
-        console.log('⚙️  Configuring Auto-IDs (UUID)...');
-        const alterTables = [
-            'my_bookshop_users',
-            'my_bookshop_clients',
-            'my_bookshop_restaurants',
-            'my_bookshop_drivers',
-            'my_bookshop_products'
-        ];
-
-        for (const table of alterTables) {
-            try {
-                // Ensure ID is UUID and set default.
-                // Note: The schema.sql creates them as VARCHAR(36) usually.
-                // We cast to UUID and set default.
-                // Using 'id' (lowercase) because Postgres unquoted identifiers are lowercase.
-                await client.query(`ALTER TABLE ${table} ALTER COLUMN id TYPE UUID USING id::uuid`);
-                await client.query(`ALTER TABLE ${table} ALTER COLUMN id SET DEFAULT gen_random_uuid()`);
-            } catch (e) {
-                console.warn(`⚠️  Could not auto-configure ID for ${table}:`, e.message);
-            }
-        }
+        console.log('🛠️  Applying new schema with UUID configuration...');
+        
+        // Modify SQL to use UUID instead of VARCHAR(36) for ID columns
+        const modifiedSql = sql.replace(/ID VARCHAR\(36\)/g, 'ID UUID DEFAULT gen_random_uuid()')
+                               .replace(/(\w+)_ID VARCHAR\(36\)/g, '$1_ID UUID');
+        
+        await client.query(modifiedSql);
 
         console.log('✅ Schema and IDs configured properly.');
         console.log('💡 TIP: Run "node seed-db.js" if you want to populate the database with mock data.');

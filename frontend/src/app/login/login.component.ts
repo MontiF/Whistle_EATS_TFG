@@ -46,7 +46,7 @@ export class LoginComponent {
             }
 
             if (data.user) {
-                this.supabaseService.getUserRole(data.user.id).then(({ data, error }) => {
+                this.supabaseService.getUserRole(data.user.id).then(({ data, error }: { data: any, error: any }) => {
                     if (error) {
                         console.error('Error al obtener el rol del usuario:', error.message);
                         this.errorMessage = 'Error al obtener el rol del usuario: ' + error.message;

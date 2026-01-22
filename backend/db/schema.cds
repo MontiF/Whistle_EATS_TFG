@@ -14,6 +14,27 @@ entity Products {
       type        : ProductType;
 }
 
+type orderStatus : String enum { pendiente_de_aceptacion; en_camino; recogido; entregado; }
+entity Orders {
+  key ID              : UUID;
+      clientId        : Association to Clients;
+      restaurantId    : Association to Restaurants;
+      driverId        : Association to Drivers;
+      totalAmount     : Decimal(9, 2);
+      status          : orderStatus default 'pendiente_de_aceptacion';
+      createdAt       : Timestamp default $now;
+      items           : Composition of many OrderItems on items.orderId = $self;
+}
+
+entity OrderItems {
+  key ID           : UUID;
+      orderId      : Association to Orders;
+      productId    : Association to Products;
+      quantity     : Integer;
+      unitPrice    : Decimal(9, 2);
+      subtotal     : Decimal(9, 2);
+}
+
 /**
  * Entidad de Usuarios
  */

@@ -45,12 +45,12 @@ module.exports = cds.service.impl(async function () {
                     ID: profileId,
                     userID_ID: userId,
                     vehicleType: userData.vehicleType,
-                    vehiclePlate: userData.vehiclePlate || '',
+                    vehiclePlate: userData.vehiclePlate || null,
                     dni: userData.dni,
-                    vehicleBrand: userData.vehicleBrand || '',
-                    vehicleModel: userData.vehicleModel || '',
-                    vehicleColor: userData.vehicleColor || '',
-                    drivingLicense: userData.drivingLicense || ''
+                    vehicleBrand: userData.vehicleBrand || null,
+                    vehicleModel: userData.vehicleModel || null,
+                    vehicleColor: userData.vehicleColor || null,
+                    drivingLicense: userData.drivingLicense || null
                 }));
             }
 

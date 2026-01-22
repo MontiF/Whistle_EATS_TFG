@@ -31,6 +31,7 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
     map: L.Map | undefined;
     userLocation: { lat: number; lng: number } | null = null;
     userMarker: L.Marker | undefined;
+    userAccuracyCircle: L.Circle | undefined;
     vehicleType: string = 'Moto';
     currentSpeed: number = 0;
     watchPositionId: number | null = null;
@@ -47,6 +48,12 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
 
     private startLocationTracking(): void {
         if (navigator.geolocation) {
+            const options = {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            };
+
             // Primero obtener ubicación inicial
             navigator.geolocation.getCurrentPosition(
                 (position) => {
@@ -60,10 +67,12 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
                 },
                 (error) => {
                     console.error('Error obteniendo ubicación:', error);
+                    // Fallback a Madrid si falla
                     this.userLocation = { lat: 40.416775, lng: -3.703790 };
                     this.initMap();
                     this.watchLocationAndSpeed();
-                }
+                },
+                options
             );
         } else {
             console.warn('Geolocalización no soportada');
@@ -74,6 +83,12 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
 
     private watchLocationAndSpeed(): void {
         if (navigator.geolocation) {
+            const options = {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            };
+
             this.watchPositionId = navigator.geolocation.watchPosition(
                 (position) => {
                     const newLocation = {
@@ -90,7 +105,8 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
                 },
                 (error) => {
                     console.error('Error en watchPosition:', error);
-                }
+                },
+                options
             );
         }
     }
@@ -117,16 +133,21 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
                 .bindPopup(`Velocidad: ${this.currentSpeed.toFixed(1)} km/h`)
                 .addTo(this.map);
         }
+
+        // Actualizar también el círculo de precisión/ubicación
+        if (this.userAccuracyCircle) {
+            this.userAccuracyCircle.setLatLng([location.lat, location.lng]);
+        }
     }
 
     private getEmoji(): string {
-        if (this.currentSpeed > 20) {
+        if (this.currentSpeed > 5) { // Bajamos umbral a 5km/h para detectar mejor
             // Mostrando vehículo en movimiento según tipo
             if (this.vehicleType === 'Coche') return '🚗';
             if (this.vehicleType === 'Moto') return '🏍️';
             if (this.vehicleType === 'Bici') return '🚴';
         }
-        // Si va a menos de 20 km/h, probablemente está andando
+        // Si va lento, probablemente está andando o parado
         return '🚶';
     }
 
@@ -146,8 +167,8 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
             attribution: '© OpenStreetMap contributors, © CartoDB'
         }).addTo(this.map);
 
-        // Agregar un círculo azul alrededor de la ubicación actual
-        L.circle([this.userLocation.lat, this.userLocation.lng], {
+        // Agregar un círculo azul alrededor de la ubicación actual y guardar referencia
+        this.userAccuracyCircle = L.circle([this.userLocation.lat, this.userLocation.lng], {
             color: '#0066cc',
             fillColor: '#0066cc',
             fillOpacity: 0.3,

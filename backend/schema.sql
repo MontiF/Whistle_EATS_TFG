@@ -61,6 +61,7 @@ CREATE TABLE my_bookshop_Restaurants (
   cif VARCHAR(20),
   address VARCHAR(200),
   hired BOOLEAN DEFAULT FALSE,
+  stars INTEGER DEFAULT 0,
   PRIMARY KEY(ID)
 );
 

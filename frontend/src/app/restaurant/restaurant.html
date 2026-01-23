@@ -4,19 +4,55 @@
     </div>
     <div id="restaurant">
         <h2>{{ restaurantName }}</h2>
+        <h3>{{ restaurantAddress }}</h3>
         <div class="stars">
+            @if(restaurantStars >= 1){
             <span class="star filled">★</span>
+            }@else{
+            <span class="star">★</span>
+            }
+            @if(restaurantStars >= 2){
             <span class="star filled">★</span>
+            }@else{
+            <span class="star">★</span>
+            }
+            @if(restaurantStars >= 3){
             <span class="star filled">★</span>
+            }@else{
+            <span class="star">★</span>
+            }
+            @if(restaurantStars >= 4){
             <span class="star filled">★</span>
+            }@else{
+            <span class="star">★</span>
+            }
+            @if(restaurantStars >= 5){
             <span class="star filled">★</span>
+            }@else{
+            <span class="star">★</span>
+            }
         </div>
     </div>
     <div id="products-title">
         <h3>Tus productos</h3>
     </div>
     <div id="products">
+        <div id="product-filter">
+            <div id="product-filter-search">
+                <input type="text" placeholder="Buscar producto">
+                <button>Buscar</button>
+            </div>
+            <div id="product-filter-types">
+                <button (click)="productType = 'all'" [class.active]="productType == 'all'">Todos</button>
+                <button (click)="productType = 'menu'" [class.active]="productType == 'menu'">Menú</button>
+                <button (click)="productType = 'comida'" [class.active]="productType == 'comida'">Comida</button>
+                <button (click)="productType = 'bebida'" [class.active]="productType == 'bebida'">Bebida</button>
+                <button (click)="productType = 'complemento'"
+                    [class.active]="productType == 'complemento'">Complemento</button>
+            </div>
+        </div>
         @for (product of products; track product.id) {
+        @if(productType == product.type || productType == 'all'){
         <div class="product-item">
             <div id="product">
                 <div id="texts">
@@ -25,7 +61,6 @@
                     <p class="product-description">{{ product.description }}</p>
                 </div>
                 <div class="product-image-wrapper">
-                    <!-- Note: In a real app we'd use NgOptimizedImage but sticking to simple img for now as URL is external/dynamic -->
                     <a class="image"><img [src]="product.imageurl || 'images/cangreburger.png'"
                             [alt]="product.name"></a>
                     <button class="edit"><img src="images/edit.png" alt="Editar"></button>
@@ -33,6 +68,7 @@
             </div>
             <hr>
         </div>
+        }
         } @empty {
         <p style="text-align: center; margin: 20px;">No hay productos disponibles.</p>
         }

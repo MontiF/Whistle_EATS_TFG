@@ -16,9 +16,13 @@ export class RestaurantComponent {
     private cdr = inject(ChangeDetectorRef);
 
     restaurantName = '';
+    restaurantAddress = '';
     restaurantId = '';
+    productType = 'all';
     products: any[] = [];
+    restaurantStars = 0;
     showAddForm = false;
+
 
     productForm = this.fb.group({
         name: ['', Validators.required],
@@ -48,8 +52,9 @@ export class RestaurantComponent {
 
         if (data) {
             this.restaurantName = data.name;
-            // Handle potentially case-sensitive ID or id
+            this.restaurantAddress = data.address;
             this.restaurantId = data.id || data.ID;
+            this.restaurantStars = data.stars;
             this.loadProducts();
             this.cdr.detectChanges();
         }

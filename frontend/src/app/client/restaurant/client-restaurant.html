@@ -1,11 +1,58 @@
 <main class="main">
     <div class="header">
         <a href="/client" class="back-link">← Volver</a>
-        <h1>{{ restaurantName }}</h1>
+    </div>
+
+    <div id="restaurant-info">
+        <h2>{{ restaurantName }}</h2>
+        <h3>{{ restaurantAddress }}</h3>
+        <div class="stars">
+            @if(restaurantStars >= 1){
+            <span class="star filled">★</span>
+            }@else{
+            <span class="star">★</span>
+            }
+            @if(restaurantStars >= 2){
+            <span class="star filled">★</span>
+            }@else{
+            <span class="star">★</span>
+            }
+            @if(restaurantStars >= 3){
+            <span class="star filled">★</span>
+            }@else{
+            <span class="star">★</span>
+            }
+            @if(restaurantStars >= 4){
+            <span class="star filled">★</span>
+            }@else{
+            <span class="star">★</span>
+            }
+            @if(restaurantStars >= 5){
+            <span class="star filled">★</span>
+            }@else{
+            <span class="star">★</span>
+            }
+        </div>
+    </div>
+
+    <div id="product-filter">
+        <div id="product-filter-search">
+            <input type="text" placeholder="Buscar producto">
+            <button>Buscar</button>
+        </div>
+        <div id="product-filter-types">
+            <button (click)="productType = 'all'" [class.active]="productType == 'all'">Todos</button>
+            <button (click)="productType = 'menu'" [class.active]="productType == 'menu'">Menú</button>
+            <button (click)="productType = 'comida'" [class.active]="productType == 'comida'">Comida</button>
+            <button (click)="productType = 'bebida'" [class.active]="productType == 'bebida'">Bebida</button>
+            <button (click)="productType = 'complemento'"
+                [class.active]="productType == 'complemento'">Complemento</button>
+        </div>
     </div>
 
     <div class="products-grid">
         @for (product of products; track product.id) {
+        @if(productType == product.type || productType == 'all'){
         <div class="product-card">
             <div class="product-info">
                 <h3>{{ product.name }}</h3>
@@ -26,6 +73,7 @@
                 </div>
             </div>
         </div>
+        }
         } @empty {
         <p>No hay productos disponibles.</p>
         }

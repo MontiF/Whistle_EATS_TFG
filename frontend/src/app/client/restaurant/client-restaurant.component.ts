@@ -20,6 +20,9 @@ export class ClientRestaurantComponent {
 
     restaurantId = '';
     restaurantName = '';
+    restaurantAddress = '';
+    restaurantStars = 0;
+    productType = 'all';
     products: any[] = [];
 
     async ngOnInit() {
@@ -40,6 +43,8 @@ export class ClientRestaurantComponent {
         const current = allRestaurants?.find((r: any) => r.id === this.restaurantId);
         if (current) {
             this.restaurantName = current.name;
+            this.restaurantAddress = current.address;
+            this.restaurantStars = current.stars;
         }
 
         this.cdr.detectChanges();

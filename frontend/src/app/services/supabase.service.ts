@@ -150,6 +150,21 @@ export class SupabaseService {
             return { data: null, error: err };
         }
     }
+    async getRestaurantStars(restaurantId: string) {
+        try {
+            const { data: restaurantData, error: restaurantError } = await this.supabase
+                .from('my_bookshop_restaurants')
+                .select('stars')
+                .eq('id', restaurantId)
+                .single();
+
+            if (restaurantError) throw restaurantError;
+
+            return { data: restaurantData, error: null };
+        } catch (err: any) {
+            return { data: null, error: err };
+        }
+    }
 
     async getRestaurantProfile(userId: string) {
         try {

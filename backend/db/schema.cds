@@ -79,6 +79,7 @@ entity Restaurants {
   address : String(200);
   products : Composition of many Products on products.restaurantId = $self;
   hired : Boolean default false;
+  stars : Integer default 0;
 }
 
 entity Clients {

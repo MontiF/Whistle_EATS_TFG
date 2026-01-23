@@ -3,34 +3,69 @@
         <h1>Whistle Eats</h1>
     </div>
     <div id="restaurant">
-        <h2>Crustáceo crujiente</h2>
+        <h2>{{ restaurantName }}</h2>
         <div class="stars">
             <span class="star filled">★</span>
             <span class="star filled">★</span>
             <span class="star filled">★</span>
             <span class="star filled">★</span>
-            <span class="star">★</span>
+            <span class="star filled">★</span>
         </div>
     </div>
     <div id="products-title">
         <h3>Tus productos</h3>
     </div>
     <div id="products">
-        <div id="product">
-            <div id="texts">
-                <h4 class="product-title">Burger cangreburger</h4>
-                <p class="product-price">2.50€</p>
-                <p class="product-description">Hamburguesa con: pan de brioche, carne de vacuno, ketchup, mostaza,
-                    pepinillos, cebolla, lechuga, queso de cabra y tomate natural.</p>
+        @for (product of products; track product.id) {
+        <div class="product-item">
+            <div id="product">
+                <div id="texts">
+                    <h4 class="product-title">{{ product.name }}</h4>
+                    <p class="product-price">{{ product.price }}€</p>
+                    <p class="product-description">{{ product.description }}</p>
+                </div>
+                <div class="product-image-wrapper">
+                    <!-- Note: In a real app we'd use NgOptimizedImage but sticking to simple img for now as URL is external/dynamic -->
+                    <a class="image"><img [src]="product.imageurl || 'images/cangreburger.png'"
+                            [alt]="product.name"></a>
+                    <button class="edit"><img src="images/edit.png" alt="Editar"></button>
+                </div>
             </div>
-            <div class="product-image-wrapper">
-                <a class="image"><img src="images/cangreburger.png" alt="Cangreburger"></a>
-                <button class="edit"><img src="images/edit.png" alt="Editar"></button>
-            </div>
+            <hr>
         </div>
-        <hr>
+        } @empty {
+        <p style="text-align: center; margin: 20px;">No hay productos disponibles.</p>
+        }
     </div>
+
+    @if (showAddForm) {
+    <div class="add-product-form" style="margin: 20px; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+        <h4>Añadir nuevo producto</h4>
+        <form [formGroup]="productForm" (ngSubmit)="onAddProduct()">
+            <div style="margin-bottom: 10px;">
+                <input type="text" formControlName="name" placeholder="Nombre del producto"
+                    style="width: 100%; padding: 8px;">
+            </div>
+            <div style="margin-bottom: 10px;">
+                <textarea formControlName="description" placeholder="Descripción"
+                    style="width: 100%; padding: 8px;"></textarea>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <input type="number" formControlName="price" placeholder="Precio" step="0.01"
+                    style="width: 100%; padding: 8px;">
+            </div>
+            <div style="margin-bottom: 10px;">
+                <input type="text" formControlName="imageUrl" placeholder="URL de la imagen"
+                    style="width: 100%; padding: 8px;">
+            </div>
+            <button type="submit" [disabled]="productForm.invalid"
+                style="padding: 8px 16px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Guardar</button>
+        </form>
+    </div>
+    }
+
     <div class="add">
-        <button class="add-product">+</button>
+        <button class="add-product" (click)="toggleAddForm()">+</button>
     </div>
+
 </main>

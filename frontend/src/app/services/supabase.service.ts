@@ -31,6 +31,9 @@ export class SupabaseService {
                 return { data: { user: null }, error: { message: 'Credenciales inválidas' } };
             }
 
+            // Persist user session manually since we are using a custom table
+            localStorage.setItem('currentUser', JSON.stringify(data));
+
             return { data: { user: data }, error: null };
         } catch (err: any) {
             return { data: { user: null }, error: { message: err.message || 'Error desconocido' } };
@@ -81,10 +84,18 @@ export class SupabaseService {
     }
 
     async signOut() {
+        localStorage.removeItem('currentUser');
         return await this.supabase.auth.signOut();
     }
 
-    async getUser(): Promise<User | null> {
+    async getUser(): Promise<any | null> {
+        // First try to get from localStorage (our custom session)
+        const storedUser = localStorage.getItem('currentUser');
+        if (storedUser) {
+            return JSON.parse(storedUser);
+        }
+
+        // Fallback to Supabase Auth (though likely not used if we use custom table)
         const { data } = await this.supabase.auth.getUser();
         return data.user;
     }
@@ -137,6 +148,114 @@ export class SupabaseService {
             };
         } catch (err: any) {
             return { data: null, error: err };
+        }
+    }
+
+    async getRestaurantProfile(userId: string) {
+        try {
+            // 1. Get restaurant details to get the ID
+            const { data: restaurantData, error: restaurantError } = await this.supabase
+                .from('my_bookshop_restaurants')
+                .select('*')
+                .eq('userid_id', userId)
+                .single();
+
+            if (restaurantError) throw restaurantError;
+
+            // 2. Get the name from the User table
+            const { data: userData, error: userError } = await this.supabase
+                .from('my_bookshop_users')
+                .select('name')
+                .eq('id', userId)
+                .single();
+
+            if (userError) throw userError;
+
+            return {
+                data: { ...restaurantData, name: userData.name },
+                error: null
+            };
+        } catch (error: any) {
+            return { data: null, error };
+        }
+    }
+
+    async getRestaurantProducts(restaurantId: string) {
+        return await this.supabase
+            .from('my_bookshop_products')
+            .select('*')
+            .eq('restaurantid_id', restaurantId);
+    }
+
+    async addProduct(product: {
+        name: string,
+        description: string,
+        price: number,
+        imageUrl: string,
+        restaurantId: string,
+        type: string
+    }) {
+        const id = crypto.randomUUID();
+        return await this.supabase
+            .from('my_bookshop_products')
+            .insert({
+                id: id,
+                name: product.name,
+                description: product.description,
+                price: product.price,
+                imageurl: product.imageUrl,
+                restaurantid_id: product.restaurantId,
+                type: product.type
+            });
+    }
+
+    async getAllRestaurants() {
+        try {
+            // 1. Fetch all restaurants
+            const { data: restaurants, error: restError } = await this.supabase
+                .from('my_bookshop_restaurants')
+                .select('*');
+
+            if (restError) throw restError;
+
+            if (!restaurants || restaurants.length === 0) {
+                return { data: [], error: null };
+            }
+
+            // 2. Extract user IDs
+            // Check casing of userID_ID. Supabase usually returns lowercase `userid_id` or `userID_ID` depending on config.
+            // We'll try to find the property that looks like user ID.
+            const userIds = restaurants.map((r: any) => r.userid_id || r.userID_ID).filter(id => id);
+
+            if (userIds.length === 0) {
+                return { data: restaurants, error: null };
+            }
+
+            // 3. Fetch users for these restaurants
+            const { data: users, error: userError } = await this.supabase
+                .from('my_bookshop_users')
+                .select('id, name')
+                .in('id', userIds);
+
+            if (userError) throw userError;
+
+            // 4. Create a map of User ID -> Name
+            const userMap = new Map();
+            users?.forEach((u: any) => userMap.set(u.id, u.name));
+
+            // 5. Merge data
+            const mappedData = restaurants.map((r: any) => ({
+                ...r,
+                name: userMap.get(r.userid_id || r.userID_ID) || 'Unknown Restaurant'
+            }));
+
+            return {
+                data: mappedData,
+                error: null
+            };
+        } catch (error: any) {
+            console.error('Error fetching restaurants:', error);
+            return { data: null, error };
         }
     }
 }

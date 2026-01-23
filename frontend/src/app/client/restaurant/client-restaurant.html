@@ -1,0 +1,43 @@
+<main class="main">
+    <div class="header">
+        <a href="/client" class="back-link">← Volver</a>
+        <h1>{{ restaurantName }}</h1>
+    </div>
+
+    <div class="products-grid">
+        @for (product of products; track product.id) {
+        <div class="product-card">
+            <div class="product-info">
+                <h3>{{ product.name }}</h3>
+                <p class="description">{{ product.description }}</p>
+                <p class="price">{{ product.price }}€</p>
+            </div>
+            <div class="product-image-container">
+                <div class="product-image">
+                    <img [src]="product.imageurl || 'images/cangreburger.png'" [alt]="product.name">
+                </div>
+
+                <div class="cart-controls">
+                    @if (getQuantity(product.id) > 0) {
+                    <button class="control-btn remove" (click)="removeFromCart(product)">-</button>
+                    <span class="quantity">{{ getQuantity(product.id) }}</span>
+                    }
+                    <button class="control-btn add" (click)="addToCart(product)">+</button>
+                </div>
+            </div>
+        </div>
+        } @empty {
+        <p>No hay productos disponibles.</p>
+        }
+    </div>
+
+    @if (cartService.count() > 0) {
+    <div class="checkout-footer">
+        <div class="cart-info">
+            <span>{{ cartService.count() }} productos</span>
+            <span>{{ cartService.total() | number:'1.2-2' }}€</span>
+        </div>
+        <button class="checkout-btn" (click)="goToCheckout()">Ir al pago</button>
+    </div>
+    }
+</main>

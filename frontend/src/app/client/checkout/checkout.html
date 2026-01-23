@@ -1,0 +1,32 @@
+<main class="main">
+    <div class="header">
+        <button class="back-btn" (click)="goBack()">← Volver</button>
+        <h1>Tu Pedido</h1>
+    </div>
+
+    <div class="cart-items">
+        @for (item of cartService.cartItems(); track item.product.id) {
+        <div class="cart-item">
+            <div class="item-info">
+                <h3>{{ item.product.name }}</h3>
+                <p class="price">{{ item.product.price }}€ x {{ item.quantity }}</p>
+            </div>
+            <div class="item-total">
+                {{ (item.product.price * item.quantity) | number:'1.2-2' }}€
+            </div>
+        </div>
+        } @empty {
+        <p class="empty-msg">Tu carrito está vacío.</p>
+        }
+    </div>
+
+    @if (cartService.count() > 0) {
+    <div class="summary">
+        <div class="total-row">
+            <span>Total</span>
+            <span class="total-price">{{ cartService.total() | number:'1.2-2' }}€</span>
+        </div>
+        <button class="pay-btn" (click)="pay()">Pagar ahora</button>
+    </div>
+    }
+</main>

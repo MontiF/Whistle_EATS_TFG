@@ -1,0 +1,27 @@
+<main class="main">
+    <div id="app-title">
+        <h1>Whistle Eats</h1>
+    </div>
+
+    <div class="restaurants-container">
+        <h2>Restaurantes Disponibles</h2>
+
+        <div class="restaurant-list">
+            @for (restaurant of restaurants; track restaurant.id) {
+            <div class="restaurant-card" (click)="goToRestaurant(restaurant.id)">
+                <div class="restaurant-info">
+                    <h3>{{ restaurant.name }}</h3>
+                    <div class="stars">
+                        @for (star of [1,2,3,4,5]; track star) {
+                        <span class="star filled">★</span>
+                        }
+                    </div>
+                    <p class="address">{{ restaurant.address }}</p>
+                </div>
+            </div>
+            } @empty {
+            <p>No hay restaurantes disponibles en este momento.</p>
+            }
+        </div>
+    </div>
+</main>

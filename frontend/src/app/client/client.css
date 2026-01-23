@@ -1,0 +1,72 @@
+:host {
+    display: block;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #333;
+    --primary-color: #ff9800;
+    --bg-gradient: linear-gradient(135deg, #f6f8fb 0%, #e2e8f0 100%);
+    --glass-bg: rgba(255, 255, 255, 0.85);
+}
+
+.main {
+    min-height: 100vh;
+    padding: 2rem;
+    background: var(--bg-gradient);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#app-title h1 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: #1f2937;
+}
+
+.restaurants-container {
+    width: 100%;
+    max-width: 800px;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #4b5563;
+}
+
+.restaurant-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.restaurant-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid #e5e7eb;
+}
+
+.restaurant-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.restaurant-info h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    color: #111827;
+}
+
+.stars {
+    color: #ffd700;
+    margin-bottom: 0.5rem;
+}
+
+.address {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin: 0;
+}

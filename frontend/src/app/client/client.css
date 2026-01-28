@@ -61,8 +61,18 @@ h2 {
 }
 
 .stars {
-    color: #ffd700;
+    display: flex;
+    gap: 0.2rem;
     margin-bottom: 0.5rem;
+}
+
+.star {
+    font-size: 1.2rem;
+    color: #ddd;
+}
+
+.star.filled {
+    color: #ffd700;
 }
 
 .address {

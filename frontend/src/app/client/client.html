@@ -13,7 +13,11 @@
                     <h3>{{ restaurant.name }}</h3>
                     <div class="stars">
                         @for (star of [1,2,3,4,5]; track star) {
+                        @if (restaurant.stars >= star) {
                         <span class="star filled">★</span>
+                        } @else {
+                        <span class="star">★</span>
+                        }
                         }
                     </div>
                     <p class="address">{{ restaurant.address }}</p>

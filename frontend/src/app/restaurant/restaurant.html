@@ -39,20 +39,25 @@
     <div id="products">
         <div id="product-filter">
             <div id="product-filter-search">
-                <input type="text" placeholder="Buscar producto">
-                <button>Buscar</button>
+                <input #searchInput id="searchProduct-input" type="text" placeholder="Buscar producto"
+                    (input)="searchProduct = searchInput.value; productType = 'all'">
             </div>
             <div id="product-filter-types">
-                <button (click)="productType = 'all'" [class.active]="productType == 'all'">Todos</button>
-                <button (click)="productType = 'menu'" [class.active]="productType == 'menu'">Menú</button>
-                <button (click)="productType = 'comida'" [class.active]="productType == 'comida'">Comida</button>
-                <button (click)="productType = 'bebida'" [class.active]="productType == 'bebida'">Bebida</button>
-                <button (click)="productType = 'complemento'"
+                <button (click)="productType = 'all'; searchProduct = ''; searchInput.value = ''"
+                    [class.active]="productType == 'all'">Todos</button>
+                <button (click)="productType = 'menu'; searchProduct = ''; searchInput.value = ''"
+                    [class.active]="productType == 'menu'">Menú</button>
+                <button (click)="productType = 'comida'; searchProduct = ''; searchInput.value = ''"
+                    [class.active]="productType == 'comida'">Comida</button>
+                <button (click)="productType = 'bebida'; searchProduct = ''; searchInput.value = ''"
+                    [class.active]="productType == 'bebida'">Bebida</button>
+                <button (click)="productType = 'complemento'; searchProduct = ''; searchInput.value = ''"
                     [class.active]="productType == 'complemento'">Complemento</button>
             </div>
         </div>
         @for (product of products; track product.id) {
-        @if(productType == product.type || productType == 'all'){
+        @if((productType == 'all' || productType == product.type) && (!searchProduct ||
+        product.name?.toLowerCase()?.includes(searchProduct.toLowerCase()))){
         <div class="product-item">
             <div id="product">
                 <div id="texts">

@@ -22,6 +22,7 @@ export class RestaurantComponent {
     products: any[] = [];
     restaurantStars = 0;
     showAddForm = false;
+    searchProduct = '';
 
 
     productForm = this.fb.group({
@@ -51,6 +52,7 @@ export class RestaurantComponent {
         }
 
         if (data) {
+            console.log('Restaurant Profile Data:', data); // Debug log
             this.restaurantName = data.name;
             this.restaurantAddress = data.address;
             this.restaurantId = data.id || data.ID;

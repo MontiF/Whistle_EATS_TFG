@@ -23,6 +23,7 @@ export class ClientRestaurantComponent {
     restaurantAddress = '';
     restaurantStars = 0;
     productType = 'all';
+    searchProduct = '';
     products: any[] = [];
 
     async ngOnInit() {
@@ -42,6 +43,7 @@ export class ClientRestaurantComponent {
         const { data: allRestaurants } = await this.supabaseService.getAllRestaurants();
         const current = allRestaurants?.find((r: any) => r.id === this.restaurantId);
         if (current) {
+            console.log('Restaurant Data:', current); // Debug log
             this.restaurantName = current.name;
             this.restaurantAddress = current.address;
             this.restaurantStars = current.stars;

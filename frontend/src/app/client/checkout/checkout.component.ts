@@ -2,6 +2,8 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CartService } from '../../services/cart.service';
+import { OrderService } from '../../services/order.service';
+import { SupabaseService } from '../../services/supabase.service';
 
 @Component({
     selector: 'app-checkout',
@@ -13,6 +15,8 @@ import { CartService } from '../../services/cart.service';
 export class CheckoutComponent {
     public cartService = inject(CartService);
     private router = inject(Router);
+    private orderService = inject(OrderService);
+    private supabaseService = inject(SupabaseService);
 
     goBack() {
         this.router.navigate(['/client']);
@@ -20,10 +24,22 @@ export class CheckoutComponent {
         // Simple back to client home is safer for now.
     }
 
-    pay() {
-        // Simulate payment
-        alert('¡Pedido realizado con éxito!');
-        this.cartService.clearCart();
-        this.router.navigate(['/client']);
+    async pay() {
+        const user = await this.supabaseService.getUser();
+        if (!user) {
+            alert('Error: No se pudo identificar al usuario');
+            return;
+        }
+
+        const result = await this.orderService.createOrder(this.cartService.cartItems(), user.id);
+
+        if (result.success) {
+            alert('¡Pedido realizado con éxito!');
+            this.cartService.clearCart();
+            this.router.navigate(['/client']);
+        } else {
+            alert('Error al realizar el pedido. Por favor, inténtalo de nuevo.');
+            console.error(result.error);
+        }
     }
 }

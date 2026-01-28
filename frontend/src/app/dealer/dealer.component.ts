@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
 import { SupabaseService } from '../services/supabase.service';
+import { OrderService } from '../services/order.service';
 
 const iconRetinaUrl = 'assets/marker-icon-2x.png';
 const iconUrl = 'assets/marker-icon.png';
@@ -35,18 +36,63 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
     vehicleType: string = 'Moto';
     currentSpeed: number = 0;
     watchPositionId: number | null = null;
+    private orderService = inject(OrderService);
     private supabaseService = inject(SupabaseService);
+    orders: any[] = [];
+    driverId: string | null = null;
 
-    ngAfterViewInit(): void {
+    async ngAfterViewInit(): Promise<void> {
+        // Initialize map logic...
         setTimeout(() => {
-            // Obtener tipo de vehículo del repartidor (desde localStorage o sesión)
             const vehicleType = localStorage.getItem('vehicleType') || 'Moto';
             this.vehicleType = vehicleType;
             this.startLocationTracking();
         }, 100);
+
+        // Fetch driver ID and orders
+        const user = await this.supabaseService.getUser();
+        if (user) {
+            this.driverId = await this.supabaseService.getDriverId(user.id);
+            this.loadOrders();
+        }
+    }
+
+    async loadOrders() {
+        console.log('DealerComponent: Loading orders...');
+        const { data, error } = await this.orderService.getPendingOrders();
+        if (data) {
+            console.log('DealerComponent: Orders loaded', data);
+            this.orders = data;
+        } else {
+            console.error('DealerComponent: Error loading orders', error);
+        }
+    }
+
+    async acceptOrder(order: any) {
+        if (!this.driverId) {
+            alert('Error: No se ha podido identificar al conductor.');
+            return;
+        }
+
+        const result = await this.orderService.acceptOrder(order.id, this.driverId);
+        if (result.success) {
+            alert('Pedido aceptado!');
+            // Remove from list
+            this.orders = this.orders.filter(o => o.id !== order.id);
+
+            // Here we could update "Current Order" UI, but for now just removing from pending list as requested.
+        } else {
+            alert('Error al aceptar el pedido.');
+        }
+    }
+
+    rejectOrder(order: any) {
+        // Just remove from local view
+        this.orders = this.orders.filter(o => o.id !== order.id);
     }
 
     private startLocationTracking(): void {
+        // ... (rest of the tracking logic)
         if (navigator.geolocation) {
             const options = {
                 enableHighAccuracy: true,

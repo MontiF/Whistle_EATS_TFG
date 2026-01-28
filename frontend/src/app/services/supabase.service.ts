@@ -273,4 +273,14 @@ export class SupabaseService {
             return { data: null, error };
         }
     }
+    async getDriverId(userId: string): Promise<string | null> {
+        const { data, error } = await this.supabase
+            .from('my_bookshop_drivers')
+            .select('id')
+            .eq('userid_id', userId)
+            .single();
+
+        if (error || !data) return null;
+        return data.id;
+    }
 }

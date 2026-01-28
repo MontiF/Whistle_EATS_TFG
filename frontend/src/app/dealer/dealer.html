@@ -7,18 +7,25 @@
     </div>
     <div id="app-orders">
         <div id="app-orders-list">
-            <div id=app-order-current>
-                <h3>Pedido actual</h3>
-                <div id="app-order-current-info">
-                    <p><strong>Dirección de recogida:</strong> -</p>
-                    <p><strong>Dirección de entrega:</strong> -</p>
-                    <p><strong>Estado:</strong> Esperando pedido</p>
+            @for (order of orders; track order.id) {
+            <div class="app-order-item">
+                <h3>Pedido de {{ order.restaurant.name }}</h3>
+                <div class="order-info">
+                    <p><strong>Recogida:</strong> {{ order.restaurant.address }}</p>
+                    <p><strong>Entrega:</strong> {{ order.deliveryAddress }}</p>
+                    <p><strong>Total:</strong> {{ order.totalamount | number:'1.2-2' }}€</p>
                 </div>
-                <div id="app-order-current-actions">
-                    <button id="app-order-current-actions-accept">Aceptar</button>
-                    <button id="app-order-current-actions-reject">Rechazar</button>
+                <div class="order-actions">
+                    <button class="accept-btn" (click)="acceptOrder(order)">Aceptar</button>
+                    <button class="reject-btn" (click)="rejectOrder(order)">Rechazar</button>
                 </div>
             </div>
+            } @empty {
+            <div class="no-orders">
+                <p>No hay pedidos pendientes en tu zona.</p>
+                <button (click)="loadOrders()" class="refresh-btn">Actualizar</button>
+            </div>
+            }
         </div>
 
     </div>

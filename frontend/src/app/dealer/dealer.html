@@ -7,24 +7,41 @@
     </div>
     <div id="app-orders">
         <div id="app-orders-list">
-            @for (order of orders; track order.id) {
-            <div class="app-order-item">
-                <h3>Pedido de {{ order.restaurant.name }}</h3>
-                <div class="order-info">
-                    <p><strong>Recogida:</strong> {{ order.restaurant.address }}</p>
-                    <p><strong>Entrega:</strong> {{ order.deliveryAddress }}</p>
-                    <p><strong>Total:</strong> {{ order.totalamount | number:'1.2-2' }}€</p>
+            @if (activeOrder) {
+                <div class="active-order-container">
+                    <h2>Pedido en curso</h2>
+                    <div class="app-order-item active-order">
+                        <h3>{{ activeOrder.restaurant.name }}</h3>
+                        <div class="order-info">
+                            <p><strong>Recogida:</strong> {{ activeOrder.restaurant.address }}</p>
+                            <p><strong>Entrega:</strong> {{ activeOrder.deliveryAddress }}</p>
+                            <p><strong>Total:</strong> {{ activeOrder.totalamount | number:'1.2-2' }}€</p>
+                        </div>
+                        <div class="status-badge">
+                            En Camino 🚀
+                        </div>
+                    </div>
                 </div>
-                <div class="order-actions">
-                    <button class="accept-btn" (click)="acceptOrder(order)">Aceptar</button>
-                    <button class="reject-btn" (click)="rejectOrder(order)">Rechazar</button>
+            } @else {
+                @for (order of orders; track order.id) {
+                <div class="app-order-item">
+                    <h3>Pedido de {{ order.restaurant.name }}</h3>
+                    <div class="order-info">
+                        <p><strong>Recogida:</strong> {{ order.restaurant.address }}</p>
+                        <p><strong>Entrega:</strong> {{ order.deliveryAddress }}</p>
+                        <p><strong>Total:</strong> {{ order.totalamount | number:'1.2-2' }}€</p>
+                    </div>
+                    <div class="order-actions">
+                        <button class="accept-btn" (click)="acceptOrder(order)">Aceptar</button>
+                        <button class="reject-btn" (click)="rejectOrder(order)">Rechazar</button>
+                    </div>
                 </div>
-            </div>
-            } @empty {
-            <div class="no-orders">
-                <p>No hay pedidos pendientes en tu zona.</p>
-                <button (click)="loadOrders()" class="refresh-btn">Actualizar</button>
-            </div>
+                } @empty {
+                <div class="no-orders">
+                    <p>No hay pedidos pendientes en tu zona.</p>
+                    <button (click)="loadOrders()" class="refresh-btn">Actualizar</button>
+                </div>
+                }
             }
         </div>
 

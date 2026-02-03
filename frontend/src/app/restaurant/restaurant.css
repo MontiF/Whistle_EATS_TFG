@@ -413,4 +413,12 @@
         height: 50px;
         font-size: 1.2rem;
     }
+
+    /* Responsive Orders UI */
+    .orders-btn {
+        position: static;
+        width: 100%;
+        margin-bottom: 1rem;
+        display: block;
+    }
 }

@@ -7,6 +7,7 @@ export const routes: Routes = [
     { path: 'login', component: LoginComponent },
     { path: 'register', component: RegisterComponent },
     { path: 'restaurant', component: RestaurantComponent },
+    { path: 'restaurant/orders', loadComponent: () => import('./restaurant/orders/restaurant-orders.component').then(m => m.RestaurantOrdersComponent) },
     { path: 'client', loadComponent: () => import('./client/client.component').then(m => m.ClientComponent) },
     { path: 'client/checkout', loadComponent: () => import('./client/checkout/checkout.component').then(m => m.CheckoutComponent) },
     { path: 'client/restaurant/:id', loadComponent: () => import('./client/restaurant/client-restaurant.component').then(m => m.ClientRestaurantComponent) },

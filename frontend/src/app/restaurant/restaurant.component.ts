@@ -1,12 +1,14 @@
 import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { SupabaseService } from '../services/supabase.service';
+import { OrderService } from '../services/order.service';
 
 @Component({
     selector: 'app-restaurant',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule],
+    imports: [CommonModule, ReactiveFormsModule, RouterLink],
     templateUrl: './restaurant.html',
     styleUrl: './restaurant.css'
 })
@@ -15,6 +17,7 @@ export class RestaurantComponent {
     private fb = inject(FormBuilder);
     private cdr = inject(ChangeDetectorRef);
 
+    // UI Logic
     restaurantName = '';
     restaurantAddress = '';
     restaurantId = '';

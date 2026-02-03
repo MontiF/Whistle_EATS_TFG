@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import * as L from 'leaflet';
@@ -38,7 +38,9 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
     watchPositionId: number | null = null;
     private orderService = inject(OrderService);
     private supabaseService = inject(SupabaseService);
+    private cdr = inject(ChangeDetectorRef);
     orders: any[] = [];
+    activeOrder: any = null;
     driverId: string | null = null;
 
     async ngAfterViewInit(): Promise<void> {
@@ -59,6 +61,19 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
 
     async loadOrders() {
         console.log('DealerComponent: Loading orders...');
+
+        // 1. Check for active order first
+        if (this.driverId) {
+            const { data: activeOrder } = await this.orderService.getActiveOrder(this.driverId);
+            if (activeOrder) {
+                console.log('DealerComponent: Active order found', activeOrder);
+                this.activeOrder = activeOrder;
+                this.orders = []; // Clear pending list if there's an active order
+                return;
+            }
+        }
+
+        // 2. If no active order, load pending orders
         const { data, error } = await this.orderService.getPendingOrders();
         if (data) {
             console.log('DealerComponent: Orders loaded', data);
@@ -77,10 +92,17 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
         const result = await this.orderService.acceptOrder(order.id, this.driverId);
         if (result.success) {
             alert('Pedido aceptado!');
-            // Remove from list
-            this.orders = this.orders.filter(o => o.id !== order.id);
 
-            // Here we could update "Current Order" UI, but for now just removing from pending list as requested.
+            // 1. Optimistic Update
+            this.activeOrder = {
+                ...order
+            };
+            this.orders = [];
+            this.cdr.detectChanges(); // Force update
+
+            // 2. Reload to ensure data consistency (getting full enriched data)
+            await this.loadOrders();
+            this.cdr.detectChanges(); // Force update again after reload
         } else {
             alert('Error al aceptar el pedido.');
         }

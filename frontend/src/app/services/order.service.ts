@@ -163,4 +163,137 @@ export class OrderService {
             return { success: false, error };
         }
     }
+
+    async getActiveOrder(driverId: string) {
+        try {
+            console.log('Checking for active order...');
+            const { data: orders, error } = await this.supabase
+                .from('my_bookshop_orders')
+                .select('*')
+                .eq('driverid_id', driverId)
+                .eq('status', 'en_camino')
+                .maybeSingle();
+
+            if (error) throw error;
+            if (!orders) return { data: null, error: null };
+
+            const order = orders;
+
+            // Enrich with restaurant info
+            const { data: restaurant, error: restError } = await this.supabase
+                .from('my_bookshop_restaurants')
+                .select('*')
+                .eq('id', order.restaurantid_id)
+                .single();
+
+            if (restError) throw restError;
+
+            // Enrich with Restaurant User Name
+            const { data: resUser, error: resUserError } = await this.supabase
+                .from('my_bookshop_users')
+                .select('name')
+                .eq('id', restaurant.userid_id)
+                .single();
+
+            if (resUserError) throw resUserError;
+
+            // Enrich with Client info (address)
+            const { data: client, error: clientError } = await this.supabase
+                .from('my_bookshop_clients')
+                .select('defaultaddress')
+                .eq('userid_id', order.clientid_id)
+                .single();
+
+            if (clientError) console.warn('Could not fetch client address', clientError);
+
+            const enrichedOrder = {
+                ...order,
+                restaurant: { ...restaurant, name: resUser.name },
+                deliveryAddress: client?.defaultaddress || 'Dirección no disponible'
+            };
+
+            return { data: enrichedOrder, error: null };
+        } catch (error) {
+            console.error('Error fetching active order:', error);
+            return { data: null, error };
+        }
+    }
+
+    async getRestaurantOrders(restaurantId: string) {
+        try {
+            console.log('Fetching orders for restaurant:', restaurantId);
+            const { data: orders, error } = await this.supabase
+                .from('my_bookshop_orders')
+                .select('*')
+                .eq('restaurantid_id', restaurantId)
+                .order('id', { ascending: false });
+
+            if (error) throw error;
+
+            if (!orders || orders.length === 0) return { data: [], error: null };
+
+            // Enrich with Client info (address)
+            const clientUserIds = [...new Set(orders.map((o: any) => o.clientid_id))];
+            const { data: clients, error: clientError } = await this.supabase
+                .from('my_bookshop_clients')
+                .select('*')
+                .in('userid_id', clientUserIds);
+
+            if (clientError) console.warn('Error fetching clients for restaurant orders', clientError);
+
+            const clientMap = new Map(clients?.map((c: any) => [c.userid_id, c]));
+
+            // Enrich with Order Items
+            const orderIds = orders.map((o: any) => o.id);
+            const { data: orderItems, error: itemsError } = await this.supabase
+                .from('my_bookshop_orderitems')
+                .select('*')
+                .in('orderid_id', orderIds);
+
+            if (itemsError) console.warn('Error fetching items for restaurant orders', itemsError);
+
+            if (orderItems && orderItems.length > 0) {
+                // Manually fetch products to avoid Join 400 error
+                const productIds = [...new Set(orderItems.map((i: any) => i.productid_id))];
+                const { data: products, error: productsError } = await this.supabase
+                    .from('my_bookshop_products')
+                    .select('*')
+                    .in('id', productIds);
+
+                if (productsError) console.warn('Error fetching products for items', productsError);
+
+                const productsMap = new Map(products?.map((p: any) => [p.id, p]));
+
+                // Attach product to item
+                orderItems.forEach((item: any) => {
+                    item.product = productsMap.get(item.productid_id) || { name: 'Unknown Product', price: 0 };
+                });
+            }
+
+            // Group items by order
+            const itemsMap = new Map<string, any[]>();
+            orderItems?.forEach((item: any) => {
+                if (!itemsMap.has(item.orderid_id)) {
+                    itemsMap.set(item.orderid_id, []);
+                }
+                itemsMap.get(item.orderid_id)?.push(item);
+            });
+
+            const enrichedOrders = orders.map((o: any) => {
+                const client = clientMap.get(o.clientid_id);
+                return {
+                    ...o,
+                    clientName: client ? 'Cliente' : 'Desconocido',
+                    deliveryAddress: client?.defaultaddress || 'Dirección no disponible',
+                    items: itemsMap.get(o.id) || []
+                };
+            });
+
+            return { data: enrichedOrders, error: null };
+
+        } catch (error) {
+            console.error('Error fetching restaurant orders:', error);
+            return { data: null, error };
+        }
+    }
 }

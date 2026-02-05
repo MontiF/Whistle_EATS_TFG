@@ -283,4 +283,42 @@ export class SupabaseService {
         if (error || !data) return null;
         return data.id;
     }
+
+    async rateRestaurant(restaurantId: string, rating: number): Promise<{ success: boolean; error?: any }> {
+        try {
+            // 1. Get current stars
+            const { data: currentData, error: fetchError } = await this.supabase
+                .from('my_bookshop_restaurants')
+                .select('stars')
+                .eq('id', restaurantId)
+                .single();
+
+            if (fetchError) throw fetchError;
+
+            const currentStars = currentData.stars || 0;
+
+            // 2. Calculate new average (Simplified logic: average of current + new)
+            // (Current + New) / 2
+            // Example: Current 3, New 5 -> 4
+            // Example: Current 4, New 5 -> 4.5 -> Round to 5 (Math.round)
+            const average = (currentStars + rating) / 2;
+            const newStars = Math.round(average);
+
+            console.log(`Rating Restaurant: Current=${currentStars}, NewRating=${rating}, Avg=${average}, Rounded=${newStars}`);
+
+            // 3. Update restaurant
+            const { error: updateError } = await this.supabase
+                .from('my_bookshop_restaurants')
+                .update({ stars: newStars })
+                .eq('id', restaurantId);
+
+            if (updateError) throw updateError;
+
+            return { success: true };
+
+        } catch (error) {
+            console.error('Error rating restaurant:', error);
+            return { success: false, error };
+        }
+    }
 }

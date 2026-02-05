@@ -11,6 +11,7 @@ export const routes: Routes = [
     { path: 'client', loadComponent: () => import('./client/client.component').then(m => m.ClientComponent) },
     { path: 'client/checkout', loadComponent: () => import('./client/checkout/checkout.component').then(m => m.CheckoutComponent) },
     { path: 'client/restaurant/:id', loadComponent: () => import('./client/restaurant/client-restaurant.component').then(m => m.ClientRestaurantComponent) },
+    { path: 'client/orders', loadComponent: () => import('./client/orders/client-orders.component').then(m => m.ClientOrdersComponent) },
     { path: 'dealer', loadComponent: () => import('./dealer/dealer.component').then(m => m.DealerComponent) },
     { path: 'recover', loadComponent: () => import('./recover/recover.component').then(m => m.RecoverComponent) },
     { path: '', redirectTo: 'login', pathMatch: 'full' }

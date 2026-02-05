@@ -1,12 +1,12 @@
 import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { SupabaseService } from '../services/supabase.service';
 
 @Component({
     selector: 'app-client',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, RouterLink],
     templateUrl: './client.html',
     styleUrl: './client.css'
 })

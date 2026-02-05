@@ -361,4 +361,92 @@ export class OrderService {
             return { success: false, error };
         }
     }
+
+    async getClientOrders(clientId: string) {
+        try {
+            console.log('Fetching orders for client:', clientId);
+            const { data: orders, error } = await this.supabase
+                .from('my_bookshop_orders')
+                .select('*')
+                .eq('clientid_id', clientId)
+                .order('id', { ascending: false });
+
+            if (error) throw error;
+
+            if (!orders || orders.length === 0) return { data: [], error: null };
+
+            // Enrich with Restaurant Info
+            const restaurantIds = [...new Set(orders.map((o: any) => o.restaurantid_id))];
+            const { data: restaurants, error: restError } = await this.supabase
+                .from('my_bookshop_restaurants')
+                .select('*')
+                .in('id', restaurantIds);
+
+            if (restError) throw restError;
+
+            // Enrich with Restaurant User Names
+            const restaurantUserIds = restaurants?.map((r: any) => r.userid_id) || [];
+            const { data: users, error: userError } = await this.supabase
+                .from('my_bookshop_users')
+                .select('id, name')
+                .in('id', restaurantUserIds);
+
+            if (userError) throw userError;
+
+            const userMap = new Map(users?.map((u: any) => [u.id, u.name]));
+            const restaurantMap = new Map(restaurants?.map((r: any) => [
+                r.id,
+                { ...r, name: userMap.get(r.userid_id) || 'Unknown Restaurant' }
+            ]));
+
+            const enrichedOrders = orders.map((o: any) => ({
+                ...o,
+                restaurant: restaurantMap.get(o.restaurantid_id),
+                statusText: this.getStatusText(o.status)
+            }));
+
+            return { data: enrichedOrders, error: null };
+
+        } catch (error) {
+            console.error('Error fetching client orders:', error);
+            return { data: null, error };
+        }
+    }
+
+    private getStatusText(status: string): string {
+        switch (status) {
+            case 'pendiente_de_aceptacion': return 'Pendiente de aceptación';
+            case 'en_camino': return 'En camino';
+            case 'recogido': return 'Recogido (¡Verifícame!)';
+            case 'entregado': return 'Entregado';
+            default: return status;
+        }
+    }
+
+    async deleteOrder(orderId: string): Promise<{ success: boolean; error?: any }> {
+        try {
+            console.log('Deleting order and items:', orderId);
+
+            // 1. Delete Order Items first (foreign key constraint usually requires this, though cascade might handle it)
+            const { error: itemsError } = await this.supabase
+                .from('my_bookshop_orderitems')
+                .delete()
+                .eq('orderid_id', orderId);
+
+            if (itemsError) throw itemsError;
+
+            // 2. Delete Order
+            const { error: orderError } = await this.supabase
+                .from('my_bookshop_orders')
+                .delete()
+                .eq('id', orderId);
+
+            if (orderError) throw orderError;
+
+            return { success: true };
+        } catch (error) {
+            console.error('Error deleting order:', error);
+            return { success: false, error };
+        }
+    }
 }

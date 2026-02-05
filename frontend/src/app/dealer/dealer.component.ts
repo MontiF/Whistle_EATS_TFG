@@ -6,6 +6,7 @@ import * as L from 'leaflet';
 import 'leaflet-routing-machine';
 import { SupabaseService } from '../services/supabase.service';
 import { OrderService } from '../services/order.service';
+import { GeocodingService } from '../services/geocoding.service';
 
 const iconRetinaUrl = 'assets/marker-icon-2x.png';
 const iconUrl = 'assets/marker-icon.png';
@@ -40,10 +41,13 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
     watchPositionId: number | null = null;
     private orderService = inject(OrderService);
     private supabaseService = inject(SupabaseService);
+    private geocodingService = inject(GeocodingService);
     private cdr = inject(ChangeDetectorRef);
     orders: any[] = [];
     activeOrder: any = null;
     driverId: string | null = null;
+    routingControl: any; // L.Routing.Control
+    hasRoute: boolean = false;
 
     async ngAfterViewInit(): Promise<void> {
         // Initialize map logic...
@@ -51,6 +55,7 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
             const vehicleType = localStorage.getItem('vehicleType') || 'Moto';
             this.vehicleType = vehicleType;
             this.startLocationTracking();
+            this.startOrderPolling();
         }, 100);
 
         // Fetch driver ID and orders
@@ -71,6 +76,7 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
                 console.log('DealerComponent: Active order found', activeOrder);
                 this.activeOrder = activeOrder;
                 this.orders = []; // Clear pending list if there's an active order
+                this.updateRouteForActiveOrder();
                 return;
             }
         }
@@ -82,6 +88,67 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
             this.orders = data;
         } else {
             console.error('DealerComponent: Error loading orders', error);
+        }
+    }
+
+    async updateRouteForActiveOrder() {
+        if (!this.activeOrder || !this.userLocation || !this.map) return;
+
+        let destinationAddress = '';
+        if (this.activeOrder.status === 'en_camino') {
+            // Going to Restaurant
+            destinationAddress = this.activeOrder.restaurant.address;
+            console.log('Routing to Restaurant:', destinationAddress);
+        } else if (this.activeOrder.status === 'recogido') {
+            // Going to Client
+            destinationAddress = this.activeOrder.deliveryAddress;
+            console.log('Routing to Client:', destinationAddress);
+        } else {
+            this.clearRoute();
+            return;
+        }
+
+        const coords = await this.geocodingService.getCoordinates(destinationAddress);
+        if (coords) {
+            this.calculateRoute(this.userLocation, coords);
+        } else {
+            console.warn('Could not find coordinates for address:', destinationAddress);
+            alert('No se pudo encontrar la ruta para esta dirección: ' + destinationAddress);
+        }
+    }
+
+    calculateRoute(start: { lat: number, lng: number }, end: { lat: number, lng: number }) {
+        if (!this.map) return;
+
+        // Si ya hay una ruta, la quitamos para dibujar la nueva
+        this.clearRoute();
+
+        // @ts-ignore
+        this.routingControl = L.Routing.control({
+            waypoints: [
+                L.latLng(start.lat, start.lng),
+                L.latLng(end.lat, end.lng)
+            ],
+            router: L.Routing.osrmv1({
+                serviceUrl: 'https://router.project-osrm.org/route/v1'
+            }),
+            lineOptions: {
+                styles: [{ color: '#6FA1EC', weight: 4 }]
+            } as any,
+            show: false, // Don't show the itinerary panel
+            addWaypoints: false,
+            routeWhileDragging: false,
+            fitSelectedRoutes: true
+        }).addTo(this.map);
+
+        this.hasRoute = true;
+    }
+
+    clearRoute() {
+        if (this.routingControl && this.map) {
+            this.map.removeControl(this.routingControl);
+            this.routingControl = null;
+            this.hasRoute = false;
         }
     }
 
@@ -102,7 +169,10 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
             this.orders = [];
             this.cdr.detectChanges(); // Force update
 
-            // 2. Reload to ensure data consistency (getting full enriched data)
+            // 2. Calculate initial route to restaurant
+            this.updateRouteForActiveOrder();
+
+            // 3. Reload to ensure data consistency (getting full enriched data)
             await this.loadOrders();
             this.cdr.detectChanges(); // Force update again after reload
         } else {
@@ -225,6 +295,28 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
         if (this.watchPositionId !== null) {
             navigator.geolocation.clearWatch(this.watchPositionId);
         }
+        if (this.pollingInterval) {
+            clearInterval(this.pollingInterval);
+        }
+    }
+
+    pollingInterval: any;
+
+    startOrderPolling() {
+        this.pollingInterval = setInterval(async () => {
+            if (this.activeOrder && this.driverId) {
+                const { data: updatedOrder } = await this.orderService.getActiveOrder(this.driverId);
+                if (updatedOrder) {
+                    // Check for status change
+                    if (updatedOrder.status !== this.activeOrder.status) {
+                        console.log('Order status changed:', updatedOrder.status);
+                        this.activeOrder = updatedOrder;
+                        this.updateRouteForActiveOrder();
+                        this.cdr.detectChanges();
+                    }
+                }
+            }
+        }, 5000); // Poll every 5 seconds
     }
 
     private initMap(): void {
@@ -266,6 +358,7 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
         if (success) {
             alert(`¡Pedido Entregado!`);
             this.activeOrder = null;
+            this.clearRoute();
             this.loadOrders();
             this.cdr.detectChanges();
         } else {

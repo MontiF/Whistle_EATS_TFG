@@ -1,0 +1,67 @@
+<div class="client-orders-container">
+    <div class="header">
+        <a routerLink="/client" class="back-btn">← Volver</a>
+        <h1>Mis Pedidos</h1>
+    </div>
+
+    <div class="orders-list">
+        @if (loading) {
+        <p class="loading">Cargando pedidos...</p>
+        } @else {
+        @for (order of orders; track order.id) {
+        <div class="order-card" [class]="order.status">
+            <div class="order-header">
+                <h3>{{ order.restaurant.name }}</h3>
+                <span class="status-badge">{{ order.statusText }}</span>
+            </div>
+            <p class="order-address">{{ order.restaurant.address }}</p>
+
+            <div class="order-details">
+                <p class="total">Total: {{ order.totalamount | number:'1.2-2' }}€</p>
+                @if (order.status === 'recogido') {
+                <div class="verification-code">
+                    <p>Código de entrega:</p>
+                    <span class="code">{{ order.codeverificationclient }}</span>
+                    <small>Dale este código al repartidor</small>
+                </div>
+                }
+
+                @if (order.status === 'entregado') {
+                <div class="rating-section">
+                    @if (order.rated) {
+                    <p class="rated-msg">¡Gracias por tu valoración!</p>
+                    } @else {
+                    <button class="rate-btn" (click)="openRating(order)">Valorar Restaurante</button>
+                    }
+                </div>
+                }
+            </div>
+        </div>
+        } @empty {
+        <div class="no-orders">
+            <p>No has realizado ningún pedido.</p>
+            <a routerLink="/client" class="cta-btn">¡Pide algo rico!</a>
+        </div>
+        }
+        }
+    </div>
+
+    @if (showRatingModal) {
+    <div class="modal-overlay">
+        <div class="modal-content">
+            <h3>Valorar {{ selectedOrder?.restaurant.name }}</h3>
+            <div class="stars-selector">
+                @for (star of [1,2,3,4,5]; track star) {
+                <span class="star" [class.filled]="currentRating >= star" (click)="setRating(star)">★</span>
+                }
+            </div>
+            <div class="modal-actions">
+                <button class="cancel-btn" (click)="closeRating()">Cancelar</button>
+                <button class="confirm-btn" [disabled]="currentRating === 0 || isSubmitting" (click)="submitRating()">
+                    {{ isSubmitting ? 'Enviando...' : 'Enviar' }}
+                </button>
+            </div>
+        </div>
+    </div>
+    }
+</div>

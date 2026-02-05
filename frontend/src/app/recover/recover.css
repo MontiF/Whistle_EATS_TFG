@@ -4,9 +4,9 @@
     color: #333;
     line-height: 1.5;
     --primary-color: #ff9800;
-    /* Naranja vibrante */
+
     --primary-hover: #f57c00;
-    /* Naranja más oscuro */
+
     --bg-gradient: linear-gradient(135deg, #f6f8fb 0%, #e2e8f0 100%);
     --glass-bg: rgba(255, 255, 255, 0.85);
     --glass-border: rgba(255, 255, 255, 0.5);

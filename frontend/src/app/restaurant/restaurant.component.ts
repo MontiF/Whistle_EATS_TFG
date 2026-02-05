@@ -17,7 +17,7 @@ export class RestaurantComponent {
     private fb = inject(FormBuilder);
     private cdr = inject(ChangeDetectorRef);
 
-    // UI Logic
+
     restaurantName = '';
     restaurantAddress = '';
     restaurantId = '';
@@ -55,7 +55,7 @@ export class RestaurantComponent {
         }
 
         if (data) {
-            console.log('Restaurant Profile Data:', data); // Debug log
+
             this.restaurantName = data.name;
             this.restaurantAddress = data.address;
             this.restaurantId = data.id || data.ID;

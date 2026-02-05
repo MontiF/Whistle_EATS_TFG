@@ -24,7 +24,7 @@ export class GeocodingService {
             if (response && response.length > 0) {
                 return {
                     lat: parseFloat(response[0].lat),
-                    lng: parseFloat(response[0].lon) // Nominatim returns 'lon'
+                    lng: parseFloat(response[0].lon)
                 };
             }
             return null;

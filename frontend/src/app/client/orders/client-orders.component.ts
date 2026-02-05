@@ -19,7 +19,7 @@ export class ClientOrdersComponent implements OnInit {
     orders: any[] = [];
     loading = true;
 
-    // Rating Logic
+
     showRatingModal = false;
     selectedOrder: any = null;
     currentRating = 0;
@@ -64,41 +64,39 @@ export class ClientOrdersComponent implements OnInit {
     async submitRating() {
         if (!this.selectedOrder || this.currentRating === 0 || this.isSubmitting) return;
 
-        // Capture data for background tasks
+
         const restaurantId = this.selectedOrder.restaurantid_id;
         const orderId = this.selectedOrder.id;
         const rating = this.currentRating;
 
-        // --- OPTIMISTIC UPDATE START ---
-        // 1. Remove from local list immediately
+
+
         this.orders = this.orders.filter(o => o.id !== orderId);
 
-        // 2. Close modal immediately
+
         this.closeRating();
 
-        // 3. Show feedback immediately (using setTimeout to ensure UI updates first)
-        setTimeout(() => alert('¡Gracias por tu valoración!'), 10);
-        // --- OPTIMISTIC UPDATE END ---
 
-        // 4. Perform operations in background
+        setTimeout(() => alert('¡Gracias por tu valoración!'), 10);
+
+
+
         this.processRatingInBackground(restaurantId, orderId, rating);
     }
 
     async processRatingInBackground(restaurantId: string, orderId: string, rating: number) {
         try {
-            // Rate Restaurant
+
             const { success: rateSuccess, error: rateError } = await this.supabaseService.rateRestaurant(restaurantId, rating);
             if (!rateSuccess) throw rateError;
 
-            // Delete Order
+
             const { success: deleteSuccess, error: deleteError } = await this.orderService.deleteOrder(orderId);
             if (!deleteSuccess) throw deleteError;
 
-            console.log('Background rating and deletion successful for order:', orderId);
+
         } catch (error) {
             console.error('Background rating/deletion failed:', error);
-            // Since we already removed it from UI, we might want to reload or notify user if critical.
-            // For this use case, logging is likely sufficient as it's an edge case.
+
         }
     }
-}

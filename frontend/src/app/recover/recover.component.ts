@@ -26,7 +26,7 @@ export class RecoverComponent {
             this.recoverForm.get('email')?.markAsTouched();
             return;
         }
-        console.log('Sending recovery email to:', this.recoverForm.get('email')?.value);
+
         alert('Email de recuperación enviado (simulado)');
     }
 
@@ -35,7 +35,7 @@ export class RecoverComponent {
             this.recoverForm.markAllAsTouched();
             return;
         }
-        console.log('Resetting password with:', this.recoverForm.value);
+
         alert('Contraseña cambiada (simulado)');
     }
 }

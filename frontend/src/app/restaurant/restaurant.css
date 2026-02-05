@@ -5,9 +5,9 @@
     line-height: 1.5;
     box-sizing: border-box;
     --primary-color: #ff9800;
-    /* Naranja vibrante */
+
     --primary-hover: #f57c00;
-    /* Naranja más oscuro */
+
     --bg-gradient: linear-gradient(135deg, #f6f8fb 0%, #e2e8f0 100%);
     --glass-bg: rgba(255, 255, 255, 0.85);
     --glass-border: rgba(255, 255, 255, 0.5);
@@ -82,12 +82,12 @@
 
 #restaurant h3 {
     font-size: 1.2rem;
-    /* Make address/stars slightly smaller */
+
     font-weight: 500;
     margin-top: 0.5rem;
 }
 
-/* Estilos para las estrellas del restaurante */
+
 .stars {
     display: flex;
     justify-content: center;
@@ -103,7 +103,7 @@
 
 .star.filled {
     color: #ffd700;
-    /* Dorado para estrellas llenas */
+
 }
 
 #products-title h3 {
@@ -114,7 +114,7 @@
     text-decoration: underline;
 }
 
-/* Estilo de tarjeta de producto */
+
 #products {
     width: 100%;
     max-width: 600px;
@@ -123,7 +123,7 @@
     gap: 1rem;
 }
 
-/* Filtros de productos */
+
 #product-filter {
     background: white;
     padding: 1rem;
@@ -211,7 +211,7 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Información de texto del producto */
+
 #texts {
     flex: 1;
     padding-right: 1rem;
@@ -245,7 +245,7 @@
     -webkit-box-orient: vertical;
 }
 
-/* Imagen del producto y envoltura del botón */
+
 .product-image-wrapper {
     position: relative;
     width: 100px;
@@ -260,7 +260,7 @@
     border-radius: 12px;
 }
 
-/* Botón de editar */
+
 .edit {
     position: absolute;
     bottom: -10px;
@@ -291,7 +291,7 @@
     object-fit: contain;
 }
 
-/* Botón de añadir producto */
+
 .add {
     display: flex;
     justify-content: center;
@@ -324,13 +324,13 @@
     transform: translateY(0);
 }
 
-/* Optimizaciones para móvil */
+
 @media (max-width: 480px) {
     .main {
         padding: 1rem;
     }
 
-    /* Stack filter elements */
+
     #product-filter-search {
         flex-direction: column;
     }
@@ -377,7 +377,7 @@
         margin-bottom: 0.5rem;
     }
 
-    /* Keep horizontal layout for product card */
+
     #product {
         padding: 0.75rem;
         gap: 0.5rem;
@@ -414,7 +414,7 @@
         font-size: 1.2rem;
     }
 
-    /* Responsive Orders UI */
+
     .orders-btn {
         position: static;
         width: 100%;

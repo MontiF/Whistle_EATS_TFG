@@ -184,7 +184,7 @@ button[type="submit"]:active {
     text-decoration: underline;
 }
 
-/* Optimizaciones para móvil */
+
 @media (max-width: 480px) {
     .main {
         padding: 1rem;
@@ -195,7 +195,7 @@ button[type="submit"]:active {
     }
 }
 
-/* Estilos del botón de mostrar contraseña */
+
 .password-wrapper {
     position: relative;
     width: 100%;

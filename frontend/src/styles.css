@@ -1,9 +1,9 @@
-/* You can add global styles to this file, and also import other style files */
+
 
 @import "tailwindcss";
 
 :root {
-    /* Colors */
+
     --primary-color: #ff9800;
     --primary-hover: #f57c00;
     --text-main: #1f2937;
@@ -12,15 +12,15 @@
     --success-color: #10b981;
     --bg-light: #f3f4f6;
 
-    /* Backgrounds */
+
     --bg-gradient: linear-gradient(135deg, #f6f8fb 0%, #e2e8f0 100%);
     --glass-bg: rgba(255, 255, 255, 0.85);
     --glass-border: rgba(255, 255, 255, 0.5);
 
-    /* Typography */
+
     --font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
 
-    /* Spacing & Layout */
+
     --border-radius-lg: 24px;
     --border-radius-md: 16px;
     --border-radius-sm: 12px;
@@ -34,7 +34,7 @@ body {
     line-height: 1.5;
 }
 
-/* Glassmorphism Panel */
+
 .glass-panel {
     background: var(--glass-bg);
     backdrop-filter: blur(12px);
@@ -47,7 +47,7 @@ body {
     border-radius: var(--border-radius-lg);
 }
 
-/* Page Container */
+
 .page-container {
     min-height: 100vh;
     width: 100%;
@@ -58,7 +58,7 @@ body {
     box-sizing: border-box;
 }
 
-/* Standard Button */
+
 .btn {
     padding: 0.8rem 1.5rem;
     border-radius: var(--border-radius-sm);
@@ -89,7 +89,7 @@ body {
     transform: translateY(0);
 }
 
-/* Form Inputs */
+
 .form-input {
     width: 100%;
     padding: 0.875rem 1rem;
@@ -108,7 +108,7 @@ body {
     box-shadow: 0 0 0 4px rgba(255, 152, 0, 0.15);
 }
 
-/* Typography Utilities */
+
 .text-main { color: var(--text-main); }
 .text-muted { color: var(--text-muted); }
 .text-center { text-align: center; }

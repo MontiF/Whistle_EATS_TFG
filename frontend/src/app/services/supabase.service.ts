@@ -31,7 +31,7 @@ export class SupabaseService {
                 return { data: { user: null }, error: { message: 'Credenciales inválidas' } };
             }
 
-            // Persist user session manually since we are using a custom table
+
             localStorage.setItem('currentUser', JSON.stringify(data));
 
             return { data: { user: data }, error: null };
@@ -40,9 +40,7 @@ export class SupabaseService {
         }
     }
 
-    /**
-     * Registro de usuario a través del Backend (SAP CAP)
-     */
+
     async registerUser(formData: any): Promise<{ data?: any, error?: any }> {
         const roleMapping: any = {
             'consumer': 'cliente',
@@ -57,7 +55,7 @@ export class SupabaseService {
                 role: roleMapping[formData.userType],
                 name: formData.consumerName || formData.restaurantName || formData.deliveryName || '',
                 phone: formData.phone,
-                // Campos adicionales según rol
+
                 address: formData.consumerAddress || formData.restaurantAddress || '',
                 cif: formData.cif || '',
                 vehicleType: formData.vehicleType || '',
@@ -89,23 +87,21 @@ export class SupabaseService {
     }
 
     async getUser(): Promise<any | null> {
-        // First try to get from localStorage (our custom session)
+
         const storedUser = localStorage.getItem('currentUser');
         if (storedUser) {
             return JSON.parse(storedUser);
         }
 
-        // Fallback to Supabase Auth (though likely not used if we use custom table)
+
         const { data } = await this.supabase.auth.getUser();
         return data.user;
     }
 
-    /**
-     * Obtiene el rol y el estado de contratación de un usuario
-     */
+
     async getUserRole(userId: string): Promise<{ data: any, error: any }> {
         try {
-            // Primero obtenemos el usuario y su rol
+
             const { data: userData, error: userError } = await this.supabase
                 .from('my_bookshop_users')
                 .select('role')
@@ -117,7 +113,7 @@ export class SupabaseService {
             const role = userData.role;
             let hired = false;
 
-            // Según el rol, consultar la tabla correspondiente
+
             if (role === 'repartidor') {
                 const { data: driverData, error: driverError } = await this.supabase
                     .from('my_bookshop_drivers')
@@ -139,7 +135,7 @@ export class SupabaseService {
                     hired = restaurantData.hired;
                 }
             } else if (role === 'cliente') {
-                hired = true; // Los clientes no necesitan ser "contratados"
+                hired = true;
             }
 
             return {
@@ -168,7 +164,7 @@ export class SupabaseService {
 
     async getRestaurantProfile(userId: string) {
         try {
-            // 1. Get restaurant details to get the ID
+
             const { data: restaurantData, error: restaurantError } = await this.supabase
                 .from('my_bookshop_restaurants')
                 .select('*')
@@ -177,7 +173,7 @@ export class SupabaseService {
 
             if (restaurantError) throw restaurantError;
 
-            // 2. Get the name from the User table
+
             const { data: userData, error: userError } = await this.supabase
                 .from('my_bookshop_users')
                 .select('name')
@@ -226,7 +222,7 @@ export class SupabaseService {
 
     async getAllRestaurants() {
         try {
-            // 1. Fetch all restaurants
+
             const { data: restaurants, error: restError } = await this.supabase
                 .from('my_bookshop_restaurants')
                 .select('*');
@@ -237,16 +233,14 @@ export class SupabaseService {
                 return { data: [], error: null };
             }
 
-            // 2. Extract user IDs
-            // Check casing of userID_ID. Supabase usually returns lowercase `userid_id` or `userID_ID` depending on config.
-            // We'll try to find the property that looks like user ID.
+
             const userIds = restaurants.map((r: any) => r.userid_id || r.userID_ID).filter(id => id);
 
             if (userIds.length === 0) {
                 return { data: restaurants, error: null };
             }
 
-            // 3. Fetch users for these restaurants
+
             const { data: users, error: userError } = await this.supabase
                 .from('my_bookshop_users')
                 .select('id, name')
@@ -254,11 +248,11 @@ export class SupabaseService {
 
             if (userError) throw userError;
 
-            // 4. Create a map of User ID -> Name
+
             const userMap = new Map();
             users?.forEach((u: any) => userMap.set(u.id, u.name));
 
-            // 5. Merge data
+
             const mappedData = restaurants.map((r: any) => ({
                 ...r,
                 name: userMap.get(r.userid_id || r.userID_ID) || 'Unknown Restaurant'
@@ -286,7 +280,7 @@ export class SupabaseService {
 
     async rateRestaurant(restaurantId: string, rating: number): Promise<{ success: boolean; error?: any }> {
         try {
-            // 1. Get current stars
+
             const { data: currentData, error: fetchError } = await this.supabase
                 .from('my_bookshop_restaurants')
                 .select('stars')
@@ -297,16 +291,13 @@ export class SupabaseService {
 
             const currentStars = currentData.stars || 0;
 
-            // 2. Calculate new average (Simplified logic: average of current + new)
-            // (Current + New) / 2
-            // Example: Current 3, New 5 -> 4
-            // Example: Current 4, New 5 -> 4.5 -> Round to 5 (Math.round)
+
             const average = (currentStars + rating) / 2;
             const newStars = Math.round(average);
 
-            console.log(`Rating Restaurant: Current=${currentStars}, NewRating=${rating}, Avg=${average}, Rounded=${newStars}`);
 
-            // 3. Update restaurant
+
+
             const { error: updateError } = await this.supabase
                 .from('my_bookshop_restaurants')
                 .update({ stars: newStars })

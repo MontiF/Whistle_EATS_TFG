@@ -22,16 +22,16 @@ export class RestaurantOrdersComponent implements OnInit {
     currentRestaurantId = '';
 
     async ngOnInit() {
-        console.log('NG ON INIT ORDERS PAGE');
+
         try {
             const user = await this.supabaseService.getUser();
-            console.log('User:', user);
+
             if (user) {
                 const { data: profile, error } = await this.supabaseService.getRestaurantProfile(user.id);
-                console.log('Profile:', profile, 'Error:', error);
+
                 if (profile) {
                     this.currentRestaurantId = profile.id || profile.ID;
-                    console.log('Restaurant ID:', this.currentRestaurantId);
+
                     this.loadOrders(this.currentRestaurantId);
                 } else {
                     this.loading = false;
@@ -49,10 +49,10 @@ export class RestaurantOrdersComponent implements OnInit {
     }
 
     async loadOrders(restaurantId: string) {
-        console.log('Loading orders for restaurant:', restaurantId);
+
         this.loading = true;
         const { data, error } = await this.orderService.getRestaurantOrders(restaurantId);
-        console.log('Orders Data:', data, 'Error:', error);
+
         if (data) {
             this.orders = data;
         } else {

@@ -21,33 +21,33 @@ export class RegisterComponent {
     private supabaseService = inject(SupabaseService);
     private router = inject(Router);
 
-    // Señales para la visibilidad de la UI (derivado de cambios de valor del formulario podría ser más limpio, pero mantenemos señales por ahora)
+
     userType = signal<string>('');
     vehicleType = signal<string>('');
 
     registerForm: FormGroup = this.fb.group({
         userType: ['', Validators.required],
 
-        // Campos de consumidor
+
         consumerName: [''],
         consumerAddress: [''],
 
-        // Campos compartidos
+
         phone: ['', [Validators.required, phoneValidator()]],
         email: ['', [Validators.required, Validators.email]],
         password: ['', [Validators.required, passwordStrengthValidator()]],
         confirmPassword: ['', Validators.required],
 
-        // Campos de restaurante
+
         restaurantName: [''],
         cif: [''],
         restaurantAddress: [''],
 
-        // Campos de repartidor
+
         deliveryName: [''],
         dni: ['', [dniValidator()]],
 
-        // Campos de vehículo
+
         vehicleType: [''],
         vehiclePlate: [''],
         vehicleBrand: [''],
@@ -57,7 +57,7 @@ export class RegisterComponent {
     }, { validators: passwordMatchValidator('password', 'confirmPassword') });
 
     constructor() {
-        // Sincronizar señales y lógica de validación
+
         this.registerForm.get('userType')?.valueChanges.subscribe((value: string | null) => {
             this.userType.set(value || '');
             this.updateValidators(value || '');
@@ -70,18 +70,18 @@ export class RegisterComponent {
     }
 
     updateValidators(type: string) {
-        // Reiniciar validadores para campos específicos según el tipo
+
         const consumerFields = ['consumerName', 'consumerAddress'];
         const restaurantFields = ['restaurantName', 'cif', 'restaurantAddress'];
-        const deliveryFields = ['deliveryName', 'dni']; // El DNI va aquí
+        const deliveryFields = ['deliveryName', 'dni'];
 
-        // Limpiar todo primero
+
         [...consumerFields, ...restaurantFields, ...deliveryFields].forEach(field => {
             this.registerForm.get(field)?.clearValidators();
             this.registerForm.get(field)?.updateValueAndValidity();
         });
 
-        // Establecer requerido para el tipo seleccionado
+
         if (type === 'consumer') {
             consumerFields.forEach(field => this.registerForm.get(field)?.setValidators(Validators.required));
         } else if (type === 'restaurant') {

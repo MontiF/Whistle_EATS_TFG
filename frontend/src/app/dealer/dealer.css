@@ -163,14 +163,13 @@ main.main {
 }
 
 
-/* Tablet and Desktop Styles */
+
 @media (min-width: 768px) {
     main.main {
         flex-direction: row;
         flex-wrap: wrap;
         align-content: flex-start;
         padding-top: 1rem;
-        /* Gap of 1.5rem comes from .main class */
     }
 
     #app-title {
@@ -182,19 +181,18 @@ main.main {
     #map-container {
         width: 65%;
         height: calc(100vh - 140px);
-        /* Ajuste para restar titulo y padding */
         margin-right: 0;
     }
 
     #app-orders {
-        /* Restamos el gap (1.5rem) para que quepan en la misma fila */
+
         width: calc(35% - 1.5rem);
         height: calc(100vh - 140px);
         flex: none;
     }
 }
 
-/* Estilos para el icono de emoji sin fondo */
+
 .emoji-icon {
     background: none !important;
     border: none !important;

@@ -56,6 +56,7 @@ export class RegisterComponent {
         drivingLicense: ['']
     }, { validators: passwordMatchValidator('password', 'confirmPassword') });
 
+    // Inicializa los observadores para cambios en el tipo de usuario y vehículo
     constructor() {
 
         this.registerForm.get('userType')?.valueChanges.subscribe((value: string | null) => {
@@ -69,6 +70,7 @@ export class RegisterComponent {
         });
     }
 
+    // Actualiza los campos del formulario según el tipo de usuario seleccionado
     updateValidators(type: string) {
 
         const consumerFields = ['consumerName', 'consumerAddress'];
@@ -95,6 +97,7 @@ export class RegisterComponent {
         this.registerForm.updateValueAndValidity();
     }
 
+    // Actualiza los campos del formulario según el tipo de vehículo seleccionado
     updateVehicleValidators(type: string) {
         const vehicleFields = ['vehiclePlate', 'vehicleBrand', 'vehicleModel', 'vehicleColor', 'drivingLicense'];
 
@@ -116,6 +119,7 @@ export class RegisterComponent {
 
     showErrorModal = signal<boolean>(false);
 
+    // Gestiona el registro de usuario en Supabase
     async onSubmit() {
         if (this.registerForm.invalid) {
             this.registerForm.markAllAsTouched();
@@ -134,6 +138,7 @@ export class RegisterComponent {
         }
     }
 
+    // Cierra el modal de error
     closeErrorModal() {
         this.showErrorModal.set(false);
     }

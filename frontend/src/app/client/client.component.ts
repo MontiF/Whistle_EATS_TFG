@@ -17,6 +17,7 @@ export class ClientComponent {
 
     restaurants: any[] = [];
 
+    // Carga la lista de restaurantes al iniciar el componente
     async ngOnInit() {
         const { data, error } = await this.supabaseService.getAllRestaurants();
         if (data) {
@@ -27,6 +28,7 @@ export class ClientComponent {
         }
     }
 
+    // Navega a la página de detalles de un restaurante específico
     goToRestaurant(restaurantId: string) {
         this.router.navigate(['/client/restaurant', restaurantId]);
     }

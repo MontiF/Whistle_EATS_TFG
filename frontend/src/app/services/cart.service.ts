@@ -24,6 +24,7 @@ export class CartService {
         }
     }
 
+    // Añade un producto al carrito o incrementa su cantidad si ya existe
     addToCart(product: any, restaurantId: string) {
         this.cartItems.update(items => {
             const existing = items.find(i => i.product.id === product.id);
@@ -37,6 +38,7 @@ export class CartService {
         this.saveCart();
     }
 
+    // Elimina un producto del carrito o decrementa su cantidad
     removeFromCart(productId: string) {
         this.cartItems.update(items => {
             const existing = items.find(i => i.product.id === productId);
@@ -49,16 +51,19 @@ export class CartService {
         this.saveCart();
     }
 
+    // Obtiene la cantidad actual de un producto específico en el carrito
     getQuantity(productId: string): number {
         const item = this.cartItems().find(i => i.product.id === productId);
         return item ? item.quantity : 0;
     }
 
+    // Vacía el carrito por completo
     clearCart() {
         this.cartItems.set([]);
         this.saveCart();
     }
 
+    // Guarda el estado actual del carrito en el almacenamiento local
     private saveCart() {
         localStorage.setItem('cart', JSON.stringify(this.cartItems()));
     }

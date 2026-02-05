@@ -14,12 +14,14 @@ export class OrderService {
         this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
     }
 
+    // Crea un nuevo pedido en la base de datos a partir de los items del carrito
     async createOrder(cartItems: CartItem[], userId: string): Promise<{ success: boolean; error?: any }> {
         if (!cartItems.length || !userId) {
             return { success: false, error: 'No items or user' };
         }
 
 
+        // Agrupamos los items por ID de restaurante
         const orderGroups = new Map<string, CartItem[]>();
         cartItems.forEach(item => {
             const rid = item.restaurantId;
@@ -79,6 +81,7 @@ export class OrderService {
         }
     }
 
+    // Obtiene todos los pedidos pendientes de aceptación
     async getPendingOrders() {
         try {
 
@@ -148,6 +151,7 @@ export class OrderService {
         }
     }
 
+    // Permite a un repartidor aceptar un pedido
     async acceptOrder(orderId: string, driverId: string) {
         try {
             const { error } = await this.supabase
@@ -165,6 +169,7 @@ export class OrderService {
         }
     }
 
+    // Obtiene el pedido activo actual para un repartidor específico
     async getActiveOrder(driverId: string) {
         try {
 
@@ -220,6 +225,7 @@ export class OrderService {
         }
     }
 
+    // Obtiene los pedidos asignados a un restaurante específico
     async getRestaurantOrders(restaurantId: string) {
         try {
 
@@ -298,6 +304,7 @@ export class OrderService {
             return { data: null, error };
         }
     }
+    // Verifica el código de recogida del pedido (local verifica al repartidor)
     async verifyOrderCode(orderId: string, inputCode: number): Promise<{ success: boolean; error?: any }> {
         try {
 
@@ -311,6 +318,7 @@ export class OrderService {
 
             if (data && data.codeverificationlocal == inputCode) {
 
+                // Si coincidimos, actualizamos el estado a 'recogido'
                 const { error: updateError } = await this.supabase
                     .from('my_bookshop_orders')
                     .update({ status: 'recogido' })
@@ -327,6 +335,7 @@ export class OrderService {
             return { success: false, error };
         }
     }
+    // Verifica el código de entrega del pedido (cliente verifica al repartidor)
     async verifyDeliveryCode(orderId: string, inputCode: number): Promise<{ success: boolean; error?: any }> {
         try {
 
@@ -340,6 +349,7 @@ export class OrderService {
 
             if (data && data.codeverificationclient == inputCode) {
 
+                // Si el código es correcto, marcamos como 'entregado'
                 const { error: updateError } = await this.supabase
                     .from('my_bookshop_orders')
                     .update({ status: 'entregado' })
@@ -357,6 +367,7 @@ export class OrderService {
         }
     }
 
+    // Obtiene el historial de pedidos de un cliente
     async getClientOrders(clientId: string) {
         try {
 
@@ -408,6 +419,7 @@ export class OrderService {
         }
     }
 
+    // Traduce el estado del pedido a un texto legible(quitar las _ y poner espacios)
     private getStatusText(status: string): string {
         switch (status) {
             case 'pendiente_de_aceptacion': return 'Pendiente de aceptación';
@@ -418,6 +430,7 @@ export class OrderService {
         }
     }
 
+    // Elimina un pedido y sus detalles de la base de datos
     async deleteOrder(orderId: string): Promise<{ success: boolean; error?: any }> {
         try {
 

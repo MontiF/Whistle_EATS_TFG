@@ -24,6 +24,7 @@ export class ClientOrdersComponent implements OnInit {
     selectedOrder: any = null;
     currentRating = 0;
 
+    // Carga los pedidos del cliente al iniciar
     async ngOnInit() {
         try {
             const user = await this.supabaseService.getUser();
@@ -43,24 +44,28 @@ export class ClientOrdersComponent implements OnInit {
         }
     }
 
+    // Abre el modal de valoración para un pedido
     openRating(order: any) {
         this.selectedOrder = order;
         this.currentRating = 0;
         this.showRatingModal = true;
     }
 
+    // Cierra el modal de valoración y reinicia el estado
     closeRating() {
         this.showRatingModal = false;
         this.selectedOrder = null;
         this.currentRating = 0;
     }
 
+    // Establece la puntuación actual seleccionada
     setRating(rating: number) {
         this.currentRating = rating;
     }
 
     isSubmitting = false;
 
+    // Envía la valoración del pedido y lo elimina de la lista localmente mientras se procesa en segundo plano
     async submitRating() {
         if (!this.selectedOrder || this.currentRating === 0 || this.isSubmitting) return;
 
@@ -74,6 +79,7 @@ export class ClientOrdersComponent implements OnInit {
         this.orders = this.orders.filter(o => o.id !== orderId);
 
 
+        // Cerramos modal y mostramos alerta inmediatamente
         this.closeRating();
 
 
@@ -81,16 +87,20 @@ export class ClientOrdersComponent implements OnInit {
 
 
 
+        // Procesamos la lógica pesada (API calls) en segundo plano
         this.processRatingInBackground(restaurantId, orderId, rating);
     }
 
+    // Procesa la valoración y la eliminación del pedido en la base de datos
     async processRatingInBackground(restaurantId: string, orderId: string, rating: number) {
         try {
 
+            // 1. Calificamos al restaurante
             const { success: rateSuccess, error: rateError } = await this.supabaseService.rateRestaurant(restaurantId, rating);
             if (!rateSuccess) throw rateError;
 
 
+            // 2. Si hubo éxito, eliminamos el pedido del listado
             const { success: deleteSuccess, error: deleteError } = await this.orderService.deleteOrder(orderId);
             if (!deleteSuccess) throw deleteError;
 
@@ -100,3 +110,4 @@ export class ClientOrdersComponent implements OnInit {
 
         }
     }
+}

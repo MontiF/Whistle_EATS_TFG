@@ -14,6 +14,7 @@ export class SupabaseService {
         this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
     }
 
+    // Inicia sesión con email y contraseña, verificando las credenciales en la base de datos
     async signIn(email: string, password: string) {
         try {
             const { data, error } = await this.supabase
@@ -41,6 +42,7 @@ export class SupabaseService {
     }
 
 
+    // Registra un nuevo usuario en el sistema a través de la API
     async registerUser(formData: any): Promise<{ data?: any, error?: any }> {
         const roleMapping: any = {
             'consumer': 'cliente',
@@ -81,11 +83,13 @@ export class SupabaseService {
         }
     }
 
+    // Cierra la sesión del usuario actual
     async signOut() {
         localStorage.removeItem('currentUser');
         return await this.supabase.auth.signOut();
     }
 
+    // Obtiene el usuario autenticado actualmente
     async getUser(): Promise<any | null> {
 
         const storedUser = localStorage.getItem('currentUser');
@@ -99,6 +103,7 @@ export class SupabaseService {
     }
 
 
+    // Obtiene el rol y estado de contratación del usuario
     async getUserRole(userId: string): Promise<{ data: any, error: any }> {
         try {
 
@@ -146,6 +151,7 @@ export class SupabaseService {
             return { data: null, error: err };
         }
     }
+    // Obtiene la calificación (estrellas) actual de un restaurante
     async getRestaurantStars(restaurantId: string) {
         try {
             const { data: restaurantData, error: restaurantError } = await this.supabase
@@ -162,6 +168,7 @@ export class SupabaseService {
         }
     }
 
+    // Obtiene el perfil completo de un restaurante usando el ID de usuario
     async getRestaurantProfile(userId: string) {
         try {
 
@@ -191,6 +198,7 @@ export class SupabaseService {
         }
     }
 
+    // Obtiene la lista de productos de un restaurante específico
     async getRestaurantProducts(restaurantId: string) {
         return await this.supabase
             .from('my_bookshop_products')
@@ -198,6 +206,7 @@ export class SupabaseService {
             .eq('restaurantid_id', restaurantId);
     }
 
+    // Añade un nuevo producto al catálogo
     async addProduct(product: {
         name: string,
         description: string,
@@ -220,12 +229,14 @@ export class SupabaseService {
             });
     }
 
+    // Obtiene todos los restaurantes registrados
     async getAllRestaurants() {
         try {
 
             const { data: restaurants, error: restError } = await this.supabase
                 .from('my_bookshop_restaurants')
-                .select('*');
+                .select('*')
+                .eq('hired', true); // Solo restaurantes contratados
 
             if (restError) throw restError;
 
@@ -267,6 +278,7 @@ export class SupabaseService {
             return { data: null, error };
         }
     }
+    // Obtiene el ID del conductor asociado a un usuario
     async getDriverId(userId: string): Promise<string | null> {
         const { data, error } = await this.supabase
             .from('my_bookshop_drivers')
@@ -278,6 +290,7 @@ export class SupabaseService {
         return data.id;
     }
 
+    // Actualiza la calificación de un restaurante con una nueva valoración
     async rateRestaurant(restaurantId: string, rating: number): Promise<{ success: boolean; error?: any }> {
         try {
 
@@ -311,5 +324,28 @@ export class SupabaseService {
             console.error('Error rating restaurant:', error);
             return { success: false, error };
         }
+    }
+    // Actualiza los datos de un producto existente
+    async updateProduct(product: any) {
+        const updateData = {
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            imageurl: product.imageUrl,
+            type: product.type
+        };
+
+        return await this.supabase
+            .from('my_bookshop_products')
+            .update(updateData)
+            .eq('id', product.id);
+    }
+
+    // Elimina un producto del catálogo
+    async deleteProduct(productId: string) {
+        return await this.supabase
+            .from('my_bookshop_products')
+            .delete()
+            .eq('id', productId);
     }
 }

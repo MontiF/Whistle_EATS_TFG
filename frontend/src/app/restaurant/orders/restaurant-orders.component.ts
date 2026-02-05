@@ -21,6 +21,7 @@ export class RestaurantOrdersComponent implements OnInit {
     loading = true;
     currentRestaurantId = '';
 
+    // Inicializa la vista de pedidos del restaurante, cargando el perfil y los pedidos
     async ngOnInit() {
 
         try {
@@ -48,6 +49,7 @@ export class RestaurantOrdersComponent implements OnInit {
         }
     }
 
+    // Carga los pedidos asociados al restaurante desde el servicio
     async loadOrders(restaurantId: string) {
 
         this.loading = true;
@@ -62,12 +64,19 @@ export class RestaurantOrdersComponent implements OnInit {
         this.cdr.detectChanges();
     }
 
+    // Recarga la lista de pedidos actual
     refreshOrders() {
         if (this.currentRestaurantId) {
             this.loadOrders(this.currentRestaurantId);
         }
     }
 
+    // Formatea el estado del pedido para mostrarlo de forma legible
+    formatStatus(status: string): string {
+        return status.replace(/_/g, ' ');
+    }
+
+    // Verifica el código de pedido para confirmar la entrega/recogida
     async verifyOrder(order: any) {
         if (!order.verificationCode || order.verificationCode.length !== 4) {
             alert('El código debe tener 4 números');

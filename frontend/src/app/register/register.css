@@ -256,3 +256,15 @@ button[type="submit"]:active {
         opacity: 1;
     }
 }
+
+.register-footer {
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.login-link {
+    color: #ff9800;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+}

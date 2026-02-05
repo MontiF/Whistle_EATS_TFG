@@ -24,10 +24,12 @@ export class LoginComponent {
     errorMessage = '';
     showPassword = false;
 
+    // Alterna la visibilidad de la contraseña en el formulario
     togglePasswordVisibility() {
         this.showPassword = !this.showPassword;
     }
 
+    // Gestiona el envío del formulario de inicio de sesión y la redirección según el rol
     onSubmit() {
         if (this.loginForm.invalid) {
             this.loginForm.markAllAsTouched();

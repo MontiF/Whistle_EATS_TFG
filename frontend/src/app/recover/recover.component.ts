@@ -21,6 +21,7 @@ export class RecoverComponent {
         confirmPassword: ['', Validators.required]
     }, { validators: passwordMatchValidator('newPassword', 'confirmPassword') });
 
+    // Simula el envío de un correo de recuperación(No implementado)
     sendRecoveryEmail() {
         if (this.recoverForm.get('email')?.invalid) {
             this.recoverForm.get('email')?.markAsTouched();
@@ -30,6 +31,7 @@ export class RecoverComponent {
         alert('Email de recuperación enviado (simulado)');
     }
 
+    // Simula el cambio de contraseña(No implementado)
     resetPassword() {
         if (this.recoverForm.invalid) {
             this.recoverForm.markAllAsTouched();

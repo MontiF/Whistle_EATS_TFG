@@ -1,8 +1,10 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
+// Validador para DNI
 export function dniValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
         const value = control.value;
+        if (!value) return null;
 
         if (!value) {
             return null;

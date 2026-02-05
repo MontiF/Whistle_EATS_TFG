@@ -18,21 +18,19 @@
                 </button>
             </div>
 
-            <div *ngIf="errorMessage"
-                style="color: #ef4444; font-size: 0.875rem; text-align: center; margin-bottom: 0.5rem;">
+            <div *ngIf="errorMessage" class="error-message">
                 {{ errorMessage }}
             </div>
 
-            <button type="submit" [disabled]="loginForm.invalid"
-                [style.opacity]="loginForm.invalid ? '0.7' : '1'">Iniciar sesión</button>
+            <button type="submit" [disabled]="loginForm.invalid">Iniciar sesión</button>
         </form>
         <div id="app-login-other">
             <a href=""><img src="images/googleLogo.png" alt="Google"></a>
             <a href=""><img src="images/facebookLogo.png" alt="Facebook"></a>
         </div>
         <div id="app-login-problems">
-            <p>¿No tienes cuenta? <a [routerLink]="['/register']" style="cursor: pointer;">Regístrate</a></p>
-            <p>¿Olvidaste tu contraseña? <a [routerLink]="['/recover']" style="cursor: pointer;">Recupera tu
+            <p>¿No tienes cuenta? <a [routerLink]="['/register']">Regístrate</a></p>
+            <p>¿Olvidaste tu contraseña? <a [routerLink]="['/recover']">Recupera tu
                     contraseña</a></p>
         </div>
     </div>

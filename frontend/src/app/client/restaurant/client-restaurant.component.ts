@@ -26,6 +26,7 @@ export class ClientRestaurantComponent {
     searchProduct = '';
     products: any[] = [];
 
+    // Inicializa el componente y carga los datos del restaurante
     async ngOnInit() {
         this.restaurantId = this.route.snapshot.paramMap.get('id') || '';
         if (this.restaurantId) {
@@ -33,11 +34,23 @@ export class ClientRestaurantComponent {
         }
     }
 
+    // Obtiene los productos del restaurante y su información detallada
     async loadRestaurantData() {
 
         const { data: productsData } = await this.supabaseService.getRestaurantProducts(this.restaurantId);
         if (productsData) {
-            this.products = productsData;
+            const typePriority: { [key: string]: number } = {
+                'menu': 1,
+                'comida': 2,
+                'bebida': 3,
+                'complemento': 4
+            };
+
+            this.products = productsData.sort((a: any, b: any) => {
+                const priorityA = typePriority[a.type] || 99;
+                const priorityB = typePriority[b.type] || 99;
+                return priorityA - priorityB;
+            });
         }
 
         const { data: allRestaurants } = await this.supabaseService.getAllRestaurants();
@@ -52,20 +65,24 @@ export class ClientRestaurantComponent {
         this.cdr.detectChanges();
     }
 
+    // Añade un producto al carrito de compras
     addToCart(product: any) {
         event?.stopPropagation();
         this.cartService.addToCart(product, this.restaurantId);
     }
 
+    // Elimina un producto del carrito
     removeFromCart(product: any) {
         event?.stopPropagation();
         this.cartService.removeFromCart(product.id);
     }
 
+    // Obtiene la cantidad actual de un producto en el carrito
     getQuantity(productId: string): number {
         return this.cartService.getQuantity(productId);
     }
 
+    // Navega a la página de pago
     goToCheckout() {
         this.router.navigate(['/client/checkout']);
     }

@@ -18,10 +18,12 @@ export class CheckoutComponent {
     private orderService = inject(OrderService);
     private supabaseService = inject(SupabaseService);
 
+    // Navega de vuelta a la página principal del cliente
     goBack() {
         this.router.navigate(['/client']);
     }
 
+    // Procesa el pago, verifica el usuario, crea el pedido y limpia el carrito(Es un pago simulado, no se realiza ningún pago real)
     async pay() {
         const user = await this.supabaseService.getUser();
         if (!user) {

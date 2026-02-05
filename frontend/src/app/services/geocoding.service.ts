@@ -9,6 +9,7 @@ export class GeocodingService {
     private http = inject(HttpClient);
     private nominatimUrl = 'https://nominatim.openstreetmap.org/search';
 
+    // Obtiene las coordenadas (latitud, longitud) a partir de una dirección textual para conseguir la ruta
     async getCoordinates(address: string): Promise<{ lat: number, lng: number } | null> {
         try {
             const params = {

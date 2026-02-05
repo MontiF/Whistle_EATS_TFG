@@ -1,5 +1,6 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
+// Validador para asegurar la fortaleza de la contraseña (Mayúsculas, minúsculas, números y longitud mínima)
 export function passwordStrengthValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
         const value = control.value;
@@ -16,6 +17,7 @@ export function passwordStrengthValidator(): ValidatorFn {
     };
 }
 
+// Validador para confirmar que dos campos de contraseña coinciden
 export function passwordMatchValidator(passwordControlName: string, confirmPasswordControlName: string): ValidatorFn {
     return (formGroup: AbstractControl): ValidationErrors | null => {
         const password = formGroup.get(passwordControlName);

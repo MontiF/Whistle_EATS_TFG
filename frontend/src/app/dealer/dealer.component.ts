@@ -1,7 +1,6 @@
 import { Component, inject, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
 import { SupabaseService } from '../services/supabase.service';
@@ -27,7 +26,7 @@ L.Marker.prototype.options.icon = iconDefault;
 @Component({
     selector: 'app-dealer',
     standalone: true,
-    imports: [CommonModule, RouterLink, FormsModule],
+    imports: [CommonModule, FormsModule],
     templateUrl: './dealer.html',
     styleUrl: './dealer.css'
 })
@@ -49,6 +48,7 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
     routingControl: any;
     hasRoute: boolean = false;
 
+    // Inicializa el seguimiento de ubicación y sondeo de pedidos después de cargar la vista
     async ngAfterViewInit(): Promise<void> {
 
         setTimeout(() => {
@@ -66,6 +66,7 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
         }
     }
 
+    // Carga los pedidos disponibles o el pedido activo del repartidor
     async loadOrders() {
 
 
@@ -91,19 +92,21 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
         }
     }
 
+    // Actualiza la ruta en el mapa según el estado del pedido activo
     async updateRouteForActiveOrder() {
         if (!this.activeOrder || !this.userLocation || !this.map) return;
 
         let destinationAddress = '';
         if (this.activeOrder.status === 'en_camino') {
-
+            // Si está en camino, el destino es el restaurante
             destinationAddress = this.activeOrder.restaurant.address;
 
         } else if (this.activeOrder.status === 'recogido') {
-
+            // Si ya lo recogió, el destino es la dirección del cliente
             destinationAddress = this.activeOrder.deliveryAddress;
 
         } else {
+            // En cualquier otro caso, no hay ruta que mostrar
             this.clearRoute();
             return;
         }
@@ -117,6 +120,7 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
         }
     }
 
+    // Calcula y muestra la ruta entre dos puntos en el mapa
     calculateRoute(start: { lat: number, lng: number }, end: { lat: number, lng: number }) {
         if (!this.map) return;
 
@@ -138,12 +142,14 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
             show: false,
             addWaypoints: false,
             routeWhileDragging: false,
-            fitSelectedRoutes: true
-        }).addTo(this.map);
+            fitSelectedRoutes: true,
+            createMarker: () => null
+        } as any).addTo(this.map);
 
         this.hasRoute = true;
     }
 
+    // Borra la ruta actual del mapa
     clearRoute() {
         if (this.routingControl && this.map) {
             this.map.removeControl(this.routingControl);
@@ -152,6 +158,7 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
         }
     }
 
+    // Acepta un pedido y lo asigna al repartidor actual
     async acceptOrder(order: any) {
         if (!this.driverId) {
             alert('Error: No se ha podido identificar al conductor.');
@@ -180,11 +187,13 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
         }
     }
 
+    // Rechaza un pedido eliminándolo de la lista local
     rejectOrder(order: any) {
 
         this.orders = this.orders.filter(o => o.id !== order.id);
     }
 
+    // Inicia el seguimiento de la ubicación del usuario
     private startLocationTracking(): void {
 
         if (navigator.geolocation) {
@@ -221,6 +230,7 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
         }
     }
 
+    // Observa cambios en la ubicación y velocidad del usuario
     private watchLocationAndSpeed(): void {
         if (navigator.geolocation) {
             const options = {
@@ -237,6 +247,7 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
                     };
 
 
+                    // Convertimos la velocidad de m/s a km/h
                     this.currentSpeed = (position.coords.speed || 0) * 3.6;
 
 
@@ -251,6 +262,7 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
         }
     }
 
+    // Actualiza el marcador del usuario en el mapa
     private updateMarker(location: { lat: number; lng: number }): void {
         if (!this.map) return;
 
@@ -269,6 +281,7 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
             this.userMarker.setLatLng([location.lat, location.lng]);
             this.userMarker.setIcon(emojiIcon);
         } else {
+            // Si no existe, creamos uno nuevo centrado en la ubicación
             this.userMarker = L.marker([location.lat, location.lng], { icon: emojiIcon })
                 .bindPopup(`Velocidad: ${this.currentSpeed.toFixed(1)} km/h`)
                 .addTo(this.map);
@@ -280,8 +293,9 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
         }
     }
 
+    // Determina el emoji a mostrar según la velocidad y tipo de vehículo
     private getEmoji(): string {
-        if (this.currentSpeed > 5) {
+        if (this.currentSpeed > 10) {
 
             if (this.vehicleType === 'Coche') return '🚗';
             if (this.vehicleType === 'Moto') return '🏍️';
@@ -291,6 +305,7 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
         return '🚶';
     }
 
+    // Limpia los observadores y temporizadores al destruir el componente
     ngOnDestroy(): void {
         if (this.watchPositionId !== null) {
             navigator.geolocation.clearWatch(this.watchPositionId);
@@ -302,12 +317,13 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
 
     pollingInterval: any;
 
+    // Inicia el sondeo periódico de actualizaciones del pedido
     startOrderPolling() {
         this.pollingInterval = setInterval(async () => {
             if (this.activeOrder && this.driverId) {
                 const { data: updatedOrder } = await this.orderService.getActiveOrder(this.driverId);
                 if (updatedOrder) {
-
+                    // Si el estado ha cambiado, actualizamos la orden y la ruta
                     if (updatedOrder.status !== this.activeOrder.status) {
 
                         this.activeOrder = updatedOrder;
@@ -319,6 +335,7 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
         }, 5000);
     }
 
+    // Inicializa el mapa Leaflet
     private initMap(): void {
         if (!this.userLocation) return;
 
@@ -347,6 +364,7 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
         }, 0);
     }
 
+    // Verifica el código de entrega para completar el pedido
     async verifyDelivery(order: any) {
         if (!order.verificationCode || order.verificationCode.length !== 4) {
             alert('El código debe tener 4 números');

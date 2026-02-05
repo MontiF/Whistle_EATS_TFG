@@ -1,10 +1,10 @@
 <main class="main">
     <div class="header">
-        <h1>Pedidos Recibidos</h1>
-        <div class="actions">
-            <button class="refresh-btn" (click)="refreshOrders()" [disabled]="loading">🔄 Actualizar</button>
+        <div class="header-left">
             <a routerLink="/restaurant" class="back-btn">← Volver</a>
+            <h1>Pedidos Recibidos</h1>
         </div>
+        <button class="refresh-btn" (click)="refreshOrders()" [disabled]="loading">Actualizar</button>
     </div>
 
     <div class="orders-container">
@@ -12,31 +12,30 @@
         <div class="loading">Cargando pedidos...</div>
         } @else {
         @for (order of orders; track order.id) {
-        <div class="order-card">
+        <div class="order-card" [class]="order.status">
             <div class="order-header">
-                <span class="order-id">#{{ order.id.slice(0, 8) }}</span>
-                <span class="order-status" [class]="order.status">{{ order.status }}</span>
-                <span class="order-date">{{ order.created_at | date:'short' }}</span>
+                <span class="order-id-badge">Pedido #{{ order.id.slice(0, 8) }}</span>
+                <span class="order-status" [class]="order.status">{{ formatStatus(order.status) }}</span>
             </div>
-            <div class="order-details">
-                <p><strong>Cliente:</strong> {{ order.clientName }}</p>
-                <p><strong>Dirección:</strong> {{ order.deliveryAddress }} via {{ order.driverid_id ? 'Driver Asignado'
-                    : 'Sin Asignar' }}</p>
-            </div>
+            <p class="order-details">
+                {{ order.created_at | date:'short' }}
+            </p>
+
             <div class="order-items">
                 <ul>
                     @for (item of order.items; track item.id) {
-                    <li>{{ item.quantity }}x {{ item.product.name }} - {{ item.subtotal }}€</li>
+                    <li>{{ item.quantity }}x {{ item.product.name }}</li>
                     }
                 </ul>
             </div>
+
             <div class="order-footer">
                 <div class="verification-section">
-                    <input type="text" [(ngModel)]="order.verificationCode" placeholder="Código (4 dígitos)"
-                        maxlength="4" class="code-input">
+                    <input type="text" [(ngModel)]="order.verificationCode" placeholder="Código" maxlength="4"
+                        class="code-input">
                     <button class="verify-btn" (click)="verifyOrder(order)">Verificar</button>
                 </div>
-                <strong>Total: {{ order.totalamount | number:'1.2-2' }}€</strong>
+                <strong class="total">Total: {{ order.totalamount | number:'1.2-2' }}€</strong>
             </div>
         </div>
         } @empty {

@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import * as L from 'leaflet';
@@ -21,10 +22,11 @@ const iconDefault = L.icon({
 });
 L.Marker.prototype.options.icon = iconDefault;
 
+
 @Component({
     selector: 'app-dealer',
     standalone: true,
-    imports: [CommonModule, RouterLink],
+    imports: [CommonModule, RouterLink, FormsModule],
     templateUrl: './dealer.html',
     styleUrl: './dealer.css'
 })
@@ -251,5 +253,23 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
         setTimeout(() => {
             this.map?.invalidateSize();
         }, 0);
+    }
+
+    async verifyDelivery(order: any) {
+        if (!order.verificationCode || order.verificationCode.length !== 4) {
+            alert('El código debe tener 4 números');
+            return;
+        }
+
+        const { success, error } = await this.orderService.verifyDeliveryCode(order.id, parseInt(order.verificationCode));
+
+        if (success) {
+            alert(`¡Pedido Entregado!`);
+            this.activeOrder = null;
+            this.loadOrders();
+            this.cdr.detectChanges();
+        } else {
+            alert('Código Incorrecto');
+        }
     }
 }

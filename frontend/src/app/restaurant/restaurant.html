@@ -64,9 +64,9 @@
         <div class="product-item">
             <div id="product">
                 <div id="texts">
-                    <h4 class="product-title">{{ product.name }}</h4>
-                    <p class="product-price">{{ product.price }}€</p>
-                    <p class="product-description">{{ product.description }}</p>
+                    <h4 class="product-title"><input type="text">{{ product.name }}</input></h4>
+                    <input class="product-price">{{ product.price }}€</input>
+                    <input class="product-description">{{ product.description }}</input>
                 </div>
                 <div class="product-image-wrapper">
                     <a class="image"><img [src]="product.imageurl || 'images/cangreburger.png'"

@@ -18,6 +18,8 @@ CREATE TABLE my_bookshop_Orders (
   totalAmount DECIMAL(9, 2),
   status VARCHAR(255) DEFAULT 'pendiente_de_aceptacion',
   createdAt TIMESTAMP DEFAULT current_timestamp,
+  codeVerificationLocal INTEGER,
+  codeVerificationClient INTEGER,
   PRIMARY KEY(ID)
 );
 

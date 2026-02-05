@@ -68,13 +68,19 @@ export class RestaurantOrdersComponent implements OnInit {
         }
     }
 
-    verifyOrder(order: any) {
-        console.log('Verifying code for order:', order.id, 'Code:', order.verificationCode);
-        // TODO: Implement verification logic with Supabase
-        if (order.verificationCode?.length === 4) {
-            alert(`Verificando código: ${order.verificationCode} para pedido leido`);
-        } else {
+    async verifyOrder(order: any) {
+        if (!order.verificationCode || order.verificationCode.length !== 4) {
             alert('El código debe tener 4 números');
+            return;
+        }
+
+        const { success, error } = await this.orderService.verifyOrderCode(order.id, parseInt(order.verificationCode));
+
+        if (success) {
+            alert(`Código Correcto: ${order.verificationCode}`);
+            this.refreshOrders();
+        } else {
+            alert('Código Incorrecto');
         }
     }
 }

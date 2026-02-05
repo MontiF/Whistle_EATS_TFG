@@ -24,6 +24,8 @@ entity Orders {
       status          : orderStatus default 'pendiente_de_aceptacion';
       createdAt       : Timestamp default $now;
       items           : Composition of many OrderItems on items.orderId = $self;
+      codeVerificationLocal            : Integer;
+      codeVerificationClient            : Integer;
 }
 
 entity OrderItems {

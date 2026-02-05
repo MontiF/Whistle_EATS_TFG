@@ -20,8 +20,6 @@ export class CheckoutComponent {
 
     goBack() {
         this.router.navigate(['/client']);
-        // Ideally go back to the restaurant, but we'd need to track where we came from.
-        // Simple back to client home is safer for now.
     }
 
     async pay() {

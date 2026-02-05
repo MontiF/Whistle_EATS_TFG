@@ -34,6 +34,10 @@ export class OrderService {
             for (const [restaurantId, items] of orderGroups) {
                 const totalAmount = items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
                 const orderId = crypto.randomUUID();
+                // Generar código entre 1000 y 9999 (inclusive)
+                const codeVerificationlocal = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+                const codeVerificationClient = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+
 
                 // Create Order
                 const { error: orderError } = await this.supabase
@@ -43,7 +47,9 @@ export class OrderService {
                         clientid_id: userId, // Assuming current user is client
                         restaurantid_id: restaurantId,
                         totalamount: totalAmount,
-                        status: 'pendiente_de_aceptacion'
+                        status: 'pendiente_de_aceptacion',
+                        codeverificationlocal: codeVerificationlocal,
+                        codeverificationclient: codeVerificationClient,
                     });
 
                 if (orderError) throw orderError;
@@ -171,7 +177,7 @@ export class OrderService {
                 .from('my_bookshop_orders')
                 .select('*')
                 .eq('driverid_id', driverId)
-                .eq('status', 'en_camino')
+                .in('status', ['en_camino', 'recogido'])
                 .maybeSingle();
 
             if (error) throw error;
@@ -226,6 +232,7 @@ export class OrderService {
                 .from('my_bookshop_orders')
                 .select('*')
                 .eq('restaurantid_id', restaurantId)
+                .eq('status', 'en_camino')
                 .order('id', { ascending: false });
 
             if (error) throw error;
@@ -294,6 +301,64 @@ export class OrderService {
         } catch (error) {
             console.error('Error fetching restaurant orders:', error);
             return { data: null, error };
+        }
+    }
+    async verifyOrderCode(orderId: string, inputCode: number): Promise<{ success: boolean; error?: any }> {
+        try {
+            console.log('Verifying code in DB for order:', orderId);
+            const { data, error } = await this.supabase
+                .from('my_bookshop_orders')
+                .select('codeverificationlocal')
+                .eq('id', orderId)
+                .single();
+
+            if (error) throw error;
+
+            if (data && data.codeverificationlocal == inputCode) {
+                // Update status to 'recogido'
+                const { error: updateError } = await this.supabase
+                    .from('my_bookshop_orders')
+                    .update({ status: 'recogido' })
+                    .eq('id', orderId);
+
+                if (updateError) throw updateError;
+
+                return { success: true };
+            } else {
+                return { success: false, error: 'Código incorrecto' };
+            }
+        } catch (error) {
+            console.error('Error verifying order code:', error);
+            return { success: false, error };
+        }
+    }
+    async verifyDeliveryCode(orderId: string, inputCode: number): Promise<{ success: boolean; error?: any }> {
+        try {
+            console.log('Verifying client code in DB for order:', orderId);
+            const { data, error } = await this.supabase
+                .from('my_bookshop_orders')
+                .select('codeverificationclient')
+                .eq('id', orderId)
+                .single();
+
+            if (error) throw error;
+
+            if (data && data.codeverificationclient == inputCode) {
+                // Update status to 'entregado'
+                const { error: updateError } = await this.supabase
+                    .from('my_bookshop_orders')
+                    .update({ status: 'entregado' })
+                    .eq('id', orderId);
+
+                if (updateError) throw updateError;
+
+                return { success: true };
+            } else {
+                return { success: false, error: 'Código incorrecto' };
+            }
+        } catch (error) {
+            console.error('Error verifying client code:', error);
+            return { success: false, error };
         }
     }
 }

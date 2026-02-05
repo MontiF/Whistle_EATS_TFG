@@ -1,39 +1,26 @@
 :host {
     display: block;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    color: #333;
-    line-height: 1.5;
-    --primary-color: #ff9800;
-    /* Naranja vibrante */
-    --primary-hover: #f57c00;
-    /* Naranja más oscuro */
-    --bg-gradient: linear-gradient(135deg, #f6f8fb 0%, #e2e8f0 100%);
-    --glass-bg: rgba(255, 255, 255, 0.85);
-    --glass-border: rgba(255, 255, 255, 0.5);
-    --text-main: #1f2937;
-    --text-muted: #6b7280;
 }
 
 .main {
-    position: relative;
     min-height: 100vh;
     width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
     padding: 2rem;
     background: var(--bg-gradient);
+    justify-content: center;
+    align-items: center;
     overflow: hidden;
+    box-sizing: border-box;
 }
 
 #app-title {
     position: relative;
-    /* Contexto de posicionamiento establecido */
-    text-align: center;
-    margin-bottom: 2rem;
     z-index: 1;
     width: 100%;
+    margin-bottom: 2rem;
+    text-align: center;
 }
 
 #app-title h1 {
@@ -48,25 +35,23 @@
     font-size: 1rem;
     font-weight: 500;
     color: var(--text-muted);
-    max-width: 300px;
     margin: 0 auto;
 }
 
 #app-login {
-    position: relative;
-    width: 100%;
-    max-width: 380px;
     background: var(--glass-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    padding: 2.5rem;
-    border-radius: 24px;
+    border: 1px solid var(--glass-border);
     box-shadow:
         0 4px 6px -1px rgba(0, 0, 0, 0.1),
         0 2px 4px -1px rgba(0, 0, 0, 0.06),
         0 20px 25px -5px rgba(0, 0, 0, 0.05);
-    /* Sombras suaves y en capas */
-    border: 1px solid var(--glass-border);
+    border-radius: var(--border-radius-lg);
+    position: relative;
+    width: 100%;
+    max-width: 380px;
+    padding: 2.5rem;
     z-index: 1;
     display: flex;
     flex-direction: column;
@@ -102,34 +87,40 @@ input[type="password"],
 input[type="text"] {
     width: 100%;
     padding: 0.875rem 1rem;
-    border-radius: 12px;
+    border-radius: var(--border-radius-sm);
     border: 2px solid #e5e7eb;
     background: white;
     font-size: 1rem;
     color: var(--text-main);
     transition: all 0.2s ease;
     outline: none;
+    box-sizing: border-box;
 }
 
 input[type="email"]:focus,
 input[type="password"]:focus,
 input[type="text"]:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
+    box-shadow: 0 0 0 4px rgba(255, 152, 0, 0.15);
 }
 
 button[type="submit"] {
-    margin-top: 1rem;
-    background: var(--primary-color);
-    color: white;
-    font-weight: 700;
-    padding: 1rem;
-    border-radius: 12px;
+    padding: 0.8rem 1.5rem;
+    border-radius: var(--border-radius-sm);
     border: none;
+    font-weight: 700;
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: var(--primary-color);
+    color: white;
     box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+    margin-top: 1rem;
+    width: 100%;
 }
 
 button[type="submit"]:hover {
@@ -197,15 +188,6 @@ button[type="submit"]:active {
 @media (max-width: 480px) {
     .main {
         padding: 1rem;
-        justify-content: center;
-    }
-
-    #app-title h1 {
-        font-size: 2rem;
-    }
-
-    #app-login {
-        padding: 1.5rem;
     }
 
     #app-login {
@@ -231,9 +213,7 @@ button[type="submit"]:active {
     padding: 0;
     margin: 0;
     margin-top: 0 !important;
-    /* Sobrescribir margen del button[type="submit"] */
     box-shadow: none !important;
-    /* Sobrescribir sombra del botón */
 }
 
 .toggle-password:hover {

@@ -1,23 +1,14 @@
 :host {
     display: block;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    color: #333;
-    line-height: 1.5;
-    --primary-color: #ff9800;
-    --primary-hover: #f57c00;
-    --bg-gradient: linear-gradient(135deg, #f6f8fb 0%, #e2e8f0 100%);
-    --glass-bg: rgba(255, 255, 255, 0.85);
-    --text-main: #1f2937;
-    --text-muted: #6b7280;
 }
 
 main.main {
-    display: flex;
-    flex-direction: column;
     min-height: 100vh;
     width: 100%;
-    background: var(--bg-gradient);
+    display: flex;
+    flex-direction: column;
     padding: 2rem;
+    background: var(--bg-gradient);
     box-sizing: border-box;
     gap: 1.5rem;
 }
@@ -39,7 +30,7 @@ main.main {
 #map-container {
     width: 100%;
     height: 50vh;
-    border-radius: 16px;
+    border-radius: var(--border-radius-md);
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.3);
@@ -54,10 +45,10 @@ main.main {
     width: 100%;
     flex: 1;
     background: var(--glass-bg);
-    border-radius: 16px;
+    border-radius: var(--border-radius-md);
     padding: 2rem;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    border: 1px solid var(--glass-border);
     display: flex;
     flex-direction: column;
     overflow-y: auto;
@@ -93,7 +84,7 @@ main.main {
 
 .app-order-item {
     background: rgba(255, 255, 255, 0.6);
-    border-radius: 12px;
+    border-radius: var(--border-radius-sm);
     padding: 1.5rem;
     border: 1px solid rgba(255, 152, 0, 0.2);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
@@ -147,7 +138,7 @@ main.main {
 
 .reject-btn {
     background: #f3f4f6;
-    color: #ef4444;
+    color: var(--danger-color);
 }
 
 .reject-btn:hover {
@@ -160,7 +151,7 @@ main.main {
     color: var(--text-muted);
     padding: 2rem;
     background: rgba(255, 255, 255, 0.4);
-    border-radius: 12px;
+    border-radius: var(--border-radius-sm);
 }
 
 .refresh-btn {

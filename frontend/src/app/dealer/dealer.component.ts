@@ -165,7 +165,7 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
             return;
         }
 
-        const result = await this.orderService.acceptOrder(order.id, this.driverId);
+        const result = await this.orderService.acceptOrderByDriver(order.id, this.driverId);
         if (result.success) {
             alert('Pedido aceptado!');
 

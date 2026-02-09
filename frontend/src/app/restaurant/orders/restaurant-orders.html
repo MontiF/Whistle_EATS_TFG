@@ -30,11 +30,19 @@
             </div>
 
             <div class="order-footer">
+                @if (order.status === 'pendiente_de_aceptacion_restaurante') {
+                <div class="action-buttons">
+                    <button class="accept-btn" (click)="acceptOrder(order)">Aceptar</button>
+                    <button class="reject-btn" (click)="rejectOrder(order)">Rechazar</button>
+                </div>
+                }
+                @if (order.status === 'pendiente_de_aceptacion_repartidor' || order.status === 'en_camino') {
                 <div class="verification-section">
                     <input type="text" [(ngModel)]="order.verificationCode" placeholder="Código" maxlength="4"
                         class="code-input">
                     <button class="verify-btn" (click)="verifyOrder(order)">Verificar</button>
                 </div>
+                }
                 <strong class="total">Total: {{ order.totalamount | number:'1.2-2' }}€</strong>
             </div>
         </div>

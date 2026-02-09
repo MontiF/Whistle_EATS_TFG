@@ -73,7 +73,21 @@ export class RestaurantOrdersComponent implements OnInit {
 
     // Formatea el estado del pedido para mostrarlo de forma legible
     formatStatus(status: string): string {
-        return status.replace(/_/g, ' ');
+        return this.orderService.getStatusText(status);
+    }
+
+    // Aceptar el pedido
+    acceptOrder(order: any) {
+        this.orderService.acceptOrderByRestaurant(order.id).then(() => {
+            this.refreshOrders();
+        });
+    }
+
+    // Rechazar el pedido
+    rejectOrder(order: any) {
+        this.orderService.rejectOrderByRestaurant(order.id).then(() => {
+            this.refreshOrders();
+        });
     }
 
     // Verifica el código de pedido para confirmar la entrega/recogida

@@ -14,7 +14,7 @@ entity Products {
       type        : ProductType;
 }
 
-type orderStatus : String enum { pendiente_de_aceptacion; en_camino; recogido; entregado; }
+type orderStatus : String enum { pendiente_de_aceptacion_restaurante; pendiente_de_aceptacion_repartidor; en_camino; recogido; entregado; cancelado; }
 entity Orders {
   key ID              : UUID;
       clientId        : Association to Clients;

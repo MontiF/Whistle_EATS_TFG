@@ -49,7 +49,7 @@ export class OrderService {
                         clientid_id: userId,
                         restaurantid_id: restaurantId,
                         totalamount: totalAmount,
-                        status: 'pendiente_de_aceptacion',
+                        status: 'pendiente_de_aceptacion_restaurante',
                         codeverificationlocal: codeVerificationlocal,
                         codeverificationclient: codeVerificationClient,
                     });
@@ -89,7 +89,7 @@ export class OrderService {
             const { data: orders, error: ordersError } = await this.supabase
                 .from('my_bookshop_orders')
                 .select('*')
-                .eq('status', 'pendiente_de_aceptacion');
+                .eq('status', 'pendiente_de_aceptacion_repartidor');
 
             if (ordersError) {
                 console.error('Error fetching orders table:', ordersError);
@@ -150,9 +150,41 @@ export class OrderService {
             return { data: null, error };
         }
     }
+    //Permite al un restaurante aceptar un pedido
+    async acceptOrderByRestaurant(orderId: string) {
+        try {
+            const { error } = await this.supabase
+                .from('my_bookshop_orders')
+                .update({
+                    status: 'pendiente_de_aceptacion_repartidor'
+                })
+                .eq('id', orderId);
+
+            if (error) throw error;
+            return { success: true };
+        } catch (error) {
+            return { success: false, error };
+        }
+    }
+    //Permite al un restaurante rechazar un pedido
+    async rejectOrderByRestaurant(orderId: string) {
+        try {
+            const { error } = await this.supabase
+                .from('my_bookshop_orders')
+                .update({
+                    status: 'cancelado'
+                })
+                .eq('id', orderId);
+
+            if (error) throw error;
+            return { success: true };
+        } catch (error) {
+            return { success: false, error };
+        }
+    }
 
     // Permite a un repartidor aceptar un pedido
-    async acceptOrder(orderId: string, driverId: string) {
+    async acceptOrderByDriver(orderId: string, driverId: string) {
         try {
             const { error } = await this.supabase
                 .from('my_bookshop_orders')
@@ -233,7 +265,7 @@ export class OrderService {
                 .from('my_bookshop_orders')
                 .select('*')
                 .eq('restaurantid_id', restaurantId)
-                .eq('status', 'en_camino')
+                .in('status', ['en_camino', 'pendiente_de_aceptacion_restaurante', 'pendiente_de_aceptacion_repartidor'])
                 .order('id', { ascending: false });
 
             if (error) throw error;
@@ -420,12 +452,14 @@ export class OrderService {
     }
 
     // Traduce el estado del pedido a un texto legible(quitar las _ y poner espacios)
-    private getStatusText(status: string): string {
+    public getStatusText(status: string): string {
         switch (status) {
-            case 'pendiente_de_aceptacion': return 'Pendiente de aceptación';
+            case 'pendiente_de_aceptacion_restaurante': return 'Pendiente de aceptación Restaurante';
+            case 'pendiente_de_aceptacion_repartidor': return 'Pendiente de aceptación Repartidor';
             case 'en_camino': return 'En camino';
             case 'recogido': return 'Recogido (¡Verifícame!)';
             case 'entregado': return 'Entregado';
+            case 'cancelado': return 'Cancelado';
             default: return status;
         }
     }

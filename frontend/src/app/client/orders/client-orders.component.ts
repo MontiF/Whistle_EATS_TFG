@@ -44,6 +44,12 @@ export class ClientOrdersComponent implements OnInit {
         }
     }
 
+    // Actualiza los pedidos del cliente
+    refreshOrders() {
+        this.loading = true;
+        this.ngOnInit();
+    }
+
     // Abre el modal de valoración para un pedido
     openRating(order: any) {
         this.selectedOrder = order;
@@ -109,5 +115,11 @@ export class ClientOrdersComponent implements OnInit {
             console.error('Background rating/deletion failed:', error);
 
         }
+    }
+
+    deleteOrder(order: any) {
+        this.orderService.deleteOrder(order.id).then(() => {
+            this.refreshOrders();
+        });
     }
 }

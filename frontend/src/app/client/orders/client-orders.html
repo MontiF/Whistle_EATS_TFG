@@ -1,7 +1,10 @@
 <div class="client-orders-container">
     <div class="header">
-        <a routerLink="/client" class="back-btn">← Volver</a>
-        <h1>Mis Pedidos</h1>
+        <div class="header-left">
+            <a routerLink="/client" class="back-btn">← Volver</a>
+            <h1>Mis Pedidos</h1>
+        </div>
+        <button class="refresh-btn" (click)="refreshOrders()" [disabled]="loading">Actualizar</button>
     </div>
 
     <div class="orders-list">
@@ -17,7 +20,6 @@
             <p class="order-address">{{ order.restaurant.address }}</p>
 
             <div class="order-details">
-                <p class="total">Total: {{ order.totalamount | number:'1.2-2' }}€</p>
                 @if (order.status === 'recogido') {
                 <div class="verification-code">
                     <p>Código de entrega:</p>
@@ -35,6 +37,13 @@
                     }
                 </div>
                 }
+
+                <div class="order-footer">
+                    <p class="total">Total: {{ order.totalamount | number:'1.2-2' }}€</p>
+                    @if (order.status === 'cancelado') {
+                    <button class="delete-btn" (click)="deleteOrder(order)">Eliminar</button>
+                    }
+                </div>
             </div>
         </div>
         } @empty {

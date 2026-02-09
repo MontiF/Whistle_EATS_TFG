@@ -53,7 +53,7 @@ async function run() {
         console.log('✅ Connected.');
 
         console.log('🗑️  Cleaning up existing tables and views...');
-        
+
         // Drop all views first to avoid dependency issues
         await client.query(`
             DO $$ 
@@ -66,7 +66,7 @@ async function run() {
                 END LOOP; 
             END $$;
         `);
-        
+
         // Alternative: drop all views explicitly
         await client.query(`
             DO $$ 
@@ -80,13 +80,10 @@ async function run() {
             END $$;
         `);
 
-        console.log('🛠️  Applying new schema with UUID configuration...');
-        
-        // Modify SQL to use UUID instead of VARCHAR(36) for ID columns
-        const modifiedSql = sql.replace(/ID VARCHAR\(36\)/g, 'ID UUID DEFAULT gen_random_uuid()')
-                               .replace(/(\w+)_ID VARCHAR\(36\)/g, '$1_ID UUID');
-        
-        await client.query(modifiedSql);
+        console.log('🛠️  Applying schema...');
+
+        // Execute the SQL as-is (using VARCHAR(36) for IDs)
+        await client.query(sql);
 
         console.log('✅ Schema and IDs configured properly.');
         console.log('💡 TIP: Run "node seed-db.js" if you want to populate the database with mock data.');

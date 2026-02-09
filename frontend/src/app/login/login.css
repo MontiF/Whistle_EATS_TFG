@@ -133,33 +133,7 @@ button[type="submit"]:active {
     transform: translateY(0);
 }
 
-#app-login-other {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    margin-top: 0.5rem;
-    padding-top: 1.5rem;
-    border-top: 2px solid #e2e8f0;
-}
 
-#app-login-other a {
-    transition: transform 0.2s ease;
-}
-
-#app-login-other a:hover {
-    transform: scale(1.1);
-}
-
-#app-login-other img {
-    width: 28px;
-    height: 28px;
-    opacity: 0.8;
-    transition: opacity 0.2s;
-}
-
-#app-login-other img:hover {
-    opacity: 1;
-}
 
 #app-login-problems {
     text-align: center;

@@ -102,6 +102,22 @@ export class SupabaseService {
         return data.user;
     }
 
+    //Obtiene el nombre del usuario
+    async getUserName(userId: string): Promise<string | null> {
+        try {
+            const { data, error } = await this.supabase
+                .from('my_bookshop_users')
+                .select('name')
+                .eq('id', userId)
+                .single();
+
+            if (error) throw error;
+
+            return data.name;
+        } catch (err: any) {
+            return null;
+        }
+    }
 
     // Obtiene el rol y estado de contratación del usuario
     async getUserRole(userId: string): Promise<{ data: any, error: any }> {
@@ -348,4 +364,8 @@ export class SupabaseService {
             .delete()
             .eq('id', productId);
     }
+
+    /*async uploadProductImage(file: File): Promise<String | null> {
+        imageName 
+    }*/
 }

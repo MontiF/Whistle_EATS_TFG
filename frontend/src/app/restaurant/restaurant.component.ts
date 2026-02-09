@@ -195,4 +195,8 @@ export class RestaurantComponent {
             type: 'comida'
         });
     }
+
+    uploadImage(){
+       // imageName : string = await this.supabaseService.getUserName();
+    }
 }

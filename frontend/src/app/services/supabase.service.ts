@@ -365,7 +365,44 @@ export class SupabaseService {
             .eq('id', productId);
     }
 
-    /*async uploadProductImage(file: File): Promise<String | null> {
-        imageName 
-    }*/
+    // Subir foto de producto al bucket 'products' y devuelve la URL pública
+    async uploadProductImage(file: File, filePath: string): Promise<{ data: { publicUrl: string } | null, error: any }> {
+        const { data, error } = await this.supabase.storage
+            .from('products')
+            .upload(filePath, file, {
+                upsert: true
+            });
+
+        if (error) {
+            return { data: null, error };
+        }
+
+        const { data: urlData } = this.supabase.storage
+            .from('products')
+            .getPublicUrl(filePath);
+
+        return { data: { publicUrl: urlData.publicUrl }, error: null };
+    }
+
+    // Elimina una imagen del bucket 'products'
+    async deleteProductImage(imageUrl: string) {
+        try {
+            // Extraer el path del archivo de la URL
+            const url = new URL(imageUrl);
+            const pathParts = url.pathname.split('/products/');
+            if (pathParts.length < 2) return;
+
+            const filePath = pathParts[1];
+
+            const { error } = await this.supabase.storage
+                .from('products')
+                .remove([filePath]);
+
+            if (error) {
+                console.error('Error deleting image:', error);
+            }
+        } catch (e) {
+            console.error('Error parsing image URL:', e);
+        }
+    }
 }

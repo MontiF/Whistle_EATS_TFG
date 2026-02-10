@@ -32,9 +32,26 @@ export class RestaurantComponent {
         name: ['', Validators.required],
         description: ['', Validators.required],
         price: [0, [Validators.required, Validators.min(0)]],
-        imageUrl: ['', Validators.required],
+        imageUrl: [''],
         type: ['comida', Validators.required]
     });
+
+    selectedFile: File | null = null;
+    previewUrl: string | null = null;
+
+    onFileSelected(event: any) {
+        const file: File = event.target.files[0];
+        if (file) {
+            this.selectedFile = file;
+            // Generate a preview URL
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.previewUrl = e.target?.result as string;
+                this.cdr.detectChanges();
+            };
+            reader.readAsDataURL(file);
+        }
+    }
 
     // Inicializa el componente cargando el perfil del restaurante del usuario actual
     async ngOnInit() {
@@ -119,17 +136,55 @@ export class RestaurantComponent {
                 type: 'comida'
             });
             this.showAddForm = !this.showAddForm;
+            this.selectedFile = null;
+            this.previewUrl = null;
         }
     }
 
     // Guarda un producto nuevo o actualiza uno existente en la base de datos
     async onSaveProduct() {
-        if (this.productForm.invalid || !this.restaurantId) return;
+        if (this.productForm.invalid) {
+            console.error('Form is invalid:', this.productForm.errors);
+            return;
+        }
+        if (!this.restaurantId) {
+            console.error('No restaurant ID found');
+            return;
+        }
 
         const productData = {
             ...this.productForm.value as any,
             restaurantId: this.restaurantId
         };
+
+        // Asegúrese de que la imagen sea la predeterminada si no se proporciona ninguna
+        if (!productData.imageUrl) {
+            productData.imageUrl = 'images/600x400.jpg';
+        }
+
+        if (this.selectedFile) {
+            const fileExt = this.selectedFile.name.split('.').pop();
+            const safeRestaurantName = (this.restaurantName || 'Restaurante').replace(/[^a-zA-Z0-9]/g, '_');
+            const safeProductName = (productData.name as string || 'Producto').replace(/[^a-zA-Z0-9]/g, '_');
+            const fileName = `${safeRestaurantName}_${safeProductName}_${Date.now()}.${fileExt}`;
+
+            const { data, error } = await this.supabaseService.uploadProductImage(this.selectedFile, fileName);
+            if (error) {
+                console.error('Error uploading image:', error);
+                alert('Error al subir la imagen. Inténtalo de nuevo.');
+                return;
+            }
+            if (data) {
+                // Si estamos editando y existía una imagen anterior, la borramos del bucket
+                if (this.editingProduct) {
+                    const oldImageUrl = this.editingProduct.imageurl || this.editingProduct.imageUrl;
+                    if (oldImageUrl) {
+                        await this.supabaseService.deleteProductImage(oldImageUrl);
+                    }
+                }
+                productData.imageUrl = data.publicUrl;
+            }
+        }
 
         let result;
         if (this.editingProduct) {
@@ -148,6 +203,7 @@ export class RestaurantComponent {
             this.cancelEdit();
         } else {
             console.error('Error saving product:', error);
+            alert('Error al guardar el producto: ' + (error.message || error));
         }
     }
 
@@ -191,12 +247,11 @@ export class RestaurantComponent {
     cancelEdit() {
         this.editingProduct = null;
         this.showAddForm = false;
+        this.selectedFile = null;
+        this.previewUrl = null;
         this.productForm.reset({
             type: 'comida'
         });
     }
 
-    uploadImage(){
-       // imageName : string = await this.supabaseService.getUserName();
-    }
 }

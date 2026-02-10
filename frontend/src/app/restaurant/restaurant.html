@@ -84,11 +84,13 @@
                             <option value="bebida">Bebida</option>
                             <option value="complemento">Complemento</option>
                         </select>
-                        <input type="text" formControlName="imageUrl" placeholder="URL Imagen" class="edit-input-image">
+                        <input #editFileInput type="file" (change)="onFileSelected($event)" accept="image/*"
+                            class="hidden-file-input">
                     </div>
                     <div class="product-image-wrapper edit-image-container">
-                        <img [src]="productForm.get('imageUrl')?.value || product.imageurl || 'images/cangreburger.png'"
-                            class="edit-image-preview">
+                        <img [src]="previewUrl || productForm.get('imageUrl')?.value || product.imageurl || 'images/600x400.jpg'"
+                            class="edit-image-preview clickable-image" (click)="editFileInput.click()"
+                            title="Click para cambiar imagen">
 
                         <div class="edit-actions">
                             <button type="submit" [disabled]="productForm.invalid" class="action-btn btn-success">
@@ -112,8 +114,7 @@
                     <p class="product-description">{{ product.description }}</p>
                 </div>
                 <div class="product-image-wrapper">
-                    <a class="image"><img [src]="product.imageurl || 'images/cangreburger.png'"
-                            [alt]="product.name"></a>
+                    <a class="image"><img [src]="product.imageurl || 'images/600x400.jpg'" [alt]="product.name"></a>
                     <button class="edit" (click)="startEdit(product)"><img src="images/edit.png" alt="Editar"></button>
                 </div>
             </div>
@@ -139,8 +140,14 @@
             <div class="form-field-group">
                 <input type="number" formControlName="price" placeholder="Precio" step="0.01" class="add-input">
             </div>
-            <div class="form-field-group">
-                <input type="text" formControlName="imageUrl" placeholder="URL de la imagen" class="add-input">
+            <div class="form-field-group image-upload-group">
+                <input #addFileInput type="file" (change)="onFileSelected($event)" accept="image/*"
+                    class="hidden-file-input">
+
+                <div class="add-image-preview-container">
+                    <img [src]="previewUrl || 'images/600x400.jpg'" class="add-image-preview clickable-image"
+                        (click)="addFileInput.click()" title="Click para subir imagen">
+                </div>
             </div>
             <div class="form-field-group">
                 <select formControlName="type" class="add-input">

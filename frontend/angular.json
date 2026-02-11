@@ -58,7 +58,10 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "proxyConfig": "proxy.conf.json"
+            "proxyConfig": "proxy.conf.json",
+            "allowedHosts": [
+              "chordotonal-nonnautically-sana.ngrok-free.dev"
+            ]
           },
           "configurations": {
             "production": {

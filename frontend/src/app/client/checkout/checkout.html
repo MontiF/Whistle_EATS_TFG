@@ -5,7 +5,7 @@
     </div>
 
     <div class="cart-items">
-        @for (item of cartService.cartItems(); track item.product.id) {
+        @for (item of cartService.cartItems(); track item.product.ID) {
         <div class="cart-item">
             <div class="item-info">
                 <h3>{{ item.product.name }}</h3>

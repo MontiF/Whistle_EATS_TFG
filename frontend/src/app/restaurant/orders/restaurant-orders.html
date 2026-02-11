@@ -4,17 +4,22 @@
             <a routerLink="/restaurant" class="back-btn">← Volver</a>
             <h1>Pedidos Recibidos</h1>
         </div>
-        <button class="refresh-btn" (click)="refreshOrders()" [disabled]="loading">Actualizar</button>
+        <div class="header-actions">
+            <button class="push-btn" (click)="subscribeToPush()">🔔 Activar Notif.</button>
+            <button class="push-btn" style="background-color: #2196F3;" (click)="sendTestNotification()">🧪 Test
+                Push</button>
+            <button class="refresh-btn" (click)="refreshOrders()" [disabled]="loading">Actualizar</button>
+        </div>
     </div>
 
     <div class="orders-container">
         @if (loading) {
         <div class="loading">Cargando pedidos...</div>
         } @else {
-        @for (order of orders; track order.id) {
+        @for (order of orders; track order.ID) {
         <div class="order-card" [class]="order.status">
             <div class="order-header">
-                <span class="order-id-badge">Pedido #{{ order.id.slice(0, 8) }}</span>
+                <span class="order-id-badge">Pedido #{{ order.ID.slice(0, 8) }}</span>
                 <span class="order-status" [class]="order.status">{{ formatStatus(order.status) }}</span>
             </div>
             <p class="order-details">
@@ -23,7 +28,7 @@
 
             <div class="order-items">
                 <ul>
-                    @for (item of order.items; track item.id) {
+                    @for (item of order.items; track item.ID) {
                     <li>{{ item.quantity }}x {{ item.product.name }}</li>
                     }
                 </ul>

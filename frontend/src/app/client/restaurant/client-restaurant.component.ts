@@ -74,7 +74,7 @@ export class ClientRestaurantComponent {
     // Elimina un producto del carrito
     removeFromCart(product: any) {
         event?.stopPropagation();
-        this.cartService.removeFromCart(product.id);
+        this.cartService.removeFromCart(product.ID);
     }
 
     // Obtiene la cantidad actual de un producto en el carrito

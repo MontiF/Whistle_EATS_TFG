@@ -1,0 +1,1059 @@
+{
+  "definitions": {
+    "CatalogService": {
+      "@source": "srv/cat-service.cds",
+      "kind": "service"
+    },
+    "CatalogService.Products": {
+      "kind": "entity",
+      "projection": {
+        "from": {
+          "ref": [
+            "my.bookshop.Products"
+          ]
+        }
+      },
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "name": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "description": {
+          "type": "cds.String"
+        },
+        "price": {
+          "type": "cds.Decimal",
+          "precision": 9,
+          "scale": 2
+        },
+        "imageUrl": {
+          "type": "cds.String"
+        },
+        "restaurantId": {
+          "type": "cds.Association",
+          "target": "CatalogService.Restaurants",
+          "keys": [
+            {
+              "ref": [
+                "ID"
+              ]
+            }
+          ]
+        },
+        "type": {
+          "type": "my.bookshop.ProductType"
+        }
+      }
+    },
+    "CatalogService.Users": {
+      "kind": "entity",
+      "projection": {
+        "from": {
+          "ref": [
+            "my.bookshop.Users"
+          ]
+        }
+      },
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "email": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "password": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "role": {
+          "type": "my.bookshop.Role"
+        },
+        "name": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "phone": {
+          "type": "cds.String",
+          "length": 12
+        },
+        "driver": {
+          "type": "cds.Association",
+          "target": "CatalogService.Drivers",
+          "on": [
+            {
+              "ref": [
+                "driver",
+                "userID"
+              ]
+            },
+            "=",
+            {
+              "ref": [
+                "$self"
+              ]
+            }
+          ]
+        },
+        "restaurant": {
+          "type": "cds.Association",
+          "target": "CatalogService.Restaurants",
+          "on": [
+            {
+              "ref": [
+                "restaurant",
+                "userID"
+              ]
+            },
+            "=",
+            {
+              "ref": [
+                "$self"
+              ]
+            }
+          ]
+        },
+        "client": {
+          "type": "cds.Association",
+          "target": "CatalogService.Clients",
+          "on": [
+            {
+              "ref": [
+                "client",
+                "userID"
+              ]
+            },
+            "=",
+            {
+              "ref": [
+                "$self"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "CatalogService.Drivers": {
+      "kind": "entity",
+      "projection": {
+        "from": {
+          "ref": [
+            "my.bookshop.Drivers"
+          ]
+        }
+      },
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "userID": {
+          "type": "cds.Association",
+          "target": "CatalogService.Users",
+          "keys": [
+            {
+              "ref": [
+                "ID"
+              ]
+            }
+          ]
+        },
+        "vehicleType": {
+          "type": "my.bookshop.VehicleType"
+        },
+        "vehiclePlate": {
+          "type": "cds.String",
+          "length": 7
+        },
+        "dni": {
+          "type": "cds.String",
+          "length": 20
+        },
+        "vehicleBrand": {
+          "type": "cds.String",
+          "length": 50
+        },
+        "vehicleModel": {
+          "type": "cds.String",
+          "length": 50
+        },
+        "vehicleColor": {
+          "type": "cds.String",
+          "length": 30
+        },
+        "drivingLicense": {
+          "type": "cds.String",
+          "length": 20
+        },
+        "hired": {
+          "type": "cds.Boolean",
+          "default": {
+            "val": false
+          }
+        }
+      }
+    },
+    "CatalogService.Restaurants": {
+      "kind": "entity",
+      "projection": {
+        "from": {
+          "ref": [
+            "my.bookshop.Restaurants"
+          ]
+        },
+        "columns": [
+          {
+            "key": true,
+            "ref": [
+              "ID"
+            ]
+          },
+          {
+            "ref": [
+              "userID"
+            ]
+          },
+          {
+            "ref": [
+              "userID",
+              "name"
+            ],
+            "as": "name"
+          },
+          {
+            "ref": [
+              "address"
+            ]
+          },
+          {
+            "ref": [
+              "products"
+            ]
+          }
+        ]
+      },
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "userID": {
+          "type": "cds.Association",
+          "target": "CatalogService.Users",
+          "keys": [
+            {
+              "ref": [
+                "ID"
+              ]
+            }
+          ]
+        },
+        "name": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "address": {
+          "type": "cds.String",
+          "length": 200
+        },
+        "products": {
+          "type": "cds.Composition",
+          "cardinality": {
+            "max": "*"
+          },
+          "target": "CatalogService.Products",
+          "on": [
+            {
+              "ref": [
+                "products",
+                "restaurantId"
+              ]
+            },
+            "=",
+            {
+              "ref": [
+                "$self"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "CatalogService.Clients": {
+      "kind": "entity",
+      "projection": {
+        "from": {
+          "ref": [
+            "my.bookshop.Clients"
+          ]
+        }
+      },
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "userID": {
+          "type": "cds.Association",
+          "target": "CatalogService.Users",
+          "keys": [
+            {
+              "ref": [
+                "ID"
+              ]
+            }
+          ]
+        },
+        "defaultAddress": {
+          "type": "cds.String",
+          "length": 200
+        }
+      }
+    },
+    "CatalogService.Orders": {
+      "kind": "entity",
+      "projection": {
+        "from": {
+          "ref": [
+            "my.bookshop.Orders"
+          ]
+        }
+      },
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "clientId": {
+          "type": "cds.Association",
+          "target": "CatalogService.Clients",
+          "keys": [
+            {
+              "ref": [
+                "ID"
+              ]
+            }
+          ]
+        },
+        "restaurantId": {
+          "type": "cds.Association",
+          "target": "CatalogService.Restaurants",
+          "keys": [
+            {
+              "ref": [
+                "ID"
+              ]
+            }
+          ]
+        },
+        "driverId": {
+          "type": "cds.Association",
+          "target": "CatalogService.Drivers",
+          "keys": [
+            {
+              "ref": [
+                "ID"
+              ]
+            }
+          ]
+        },
+        "totalAmount": {
+          "type": "cds.Decimal",
+          "precision": 9,
+          "scale": 2
+        },
+        "status": {
+          "type": "my.bookshop.orderStatus",
+          "default": {
+            "val": "pendiente_de_aceptacion"
+          }
+        },
+        "createdAt": {
+          "type": "cds.Timestamp",
+          "default": {
+            "ref": [
+              "$now"
+            ]
+          }
+        },
+        "items": {
+          "type": "cds.Composition",
+          "cardinality": {
+            "max": "*"
+          },
+          "target": "CatalogService.OrderItems",
+          "on": [
+            {
+              "ref": [
+                "items",
+                "orderId"
+              ]
+            },
+            "=",
+            {
+              "ref": [
+                "$self"
+              ]
+            }
+          ]
+        },
+        "codeVerificationLocal": {
+          "type": "cds.Integer"
+        },
+        "codeVerificationClient": {
+          "type": "cds.Integer"
+        }
+      }
+    },
+    "CatalogService.OrderItems": {
+      "kind": "entity",
+      "projection": {
+        "from": {
+          "ref": [
+            "my.bookshop.OrderItems"
+          ]
+        }
+      },
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "orderId": {
+          "type": "cds.Association",
+          "target": "CatalogService.Orders",
+          "keys": [
+            {
+              "ref": [
+                "ID"
+              ]
+            }
+          ]
+        },
+        "productId": {
+          "type": "cds.Association",
+          "target": "CatalogService.Products",
+          "keys": [
+            {
+              "ref": [
+                "ID"
+              ]
+            }
+          ]
+        },
+        "quantity": {
+          "type": "cds.Integer"
+        },
+        "unitPrice": {
+          "type": "cds.Decimal",
+          "precision": 9,
+          "scale": 2
+        },
+        "subtotal": {
+          "type": "cds.Decimal",
+          "precision": 9,
+          "scale": 2
+        }
+      }
+    },
+    "CatalogService.PushSubscriptions": {
+      "kind": "entity",
+      "projection": {
+        "from": {
+          "ref": [
+            "my.bookshop.PushSubscriptions"
+          ]
+        }
+      },
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "userId": {
+          "type": "cds.Association",
+          "target": "CatalogService.Users",
+          "keys": [
+            {
+              "ref": [
+                "ID"
+              ]
+            }
+          ]
+        },
+        "endpoint": {
+          "type": "cds.String"
+        },
+        "p256dh": {
+          "type": "cds.String"
+        },
+        "auth": {
+          "type": "cds.String"
+        }
+      }
+    },
+    "CatalogService.registerUser": {
+      "kind": "action",
+      "params": {
+        "userData": {
+          "elements": {
+            "email": {
+              "type": "cds.String"
+            },
+            "password": {
+              "type": "cds.String"
+            },
+            "role": {
+              "type": "cds.String"
+            },
+            "name": {
+              "type": "cds.String"
+            },
+            "phone": {
+              "type": "cds.String"
+            },
+            "address": {
+              "type": "cds.String"
+            },
+            "cif": {
+              "type": "cds.String"
+            },
+            "vehicleType": {
+              "type": "cds.String"
+            },
+            "vehiclePlate": {
+              "type": "cds.String"
+            },
+            "dni": {
+              "type": "cds.String"
+            },
+            "vehicleBrand": {
+              "type": "cds.String"
+            },
+            "vehicleModel": {
+              "type": "cds.String"
+            },
+            "vehicleColor": {
+              "type": "cds.String"
+            },
+            "drivingLicense": {
+              "type": "cds.String"
+            }
+          }
+        }
+      },
+      "returns": {
+        "elements": {
+          "ID": {
+            "type": "cds.UUID"
+          }
+        }
+      }
+    },
+    "CatalogService.rateRestaurant": {
+      "kind": "action",
+      "params": {
+        "restaurantId": {
+          "type": "cds.UUID"
+        },
+        "rating": {
+          "type": "cds.Integer"
+        }
+      },
+      "returns": {
+        "elements": {
+          "success": {
+            "type": "cds.Boolean"
+          }
+        }
+      }
+    },
+    "CatalogService.sendTestNotification": {
+      "kind": "action",
+      "params": {
+        "userId": {
+          "type": "cds.UUID"
+        }
+      },
+      "returns": {
+        "elements": {
+          "success": {
+            "type": "cds.Boolean"
+          },
+          "count": {
+            "type": "cds.Integer"
+          }
+        }
+      }
+    },
+    "my.bookshop.ProductType": {
+      "kind": "type",
+      "type": "cds.String",
+      "enum": {
+        "menu": {},
+        "comida": {},
+        "bebida": {},
+        "complemento": {}
+      }
+    },
+    "my.bookshop.Products": {
+      "kind": "entity",
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "name": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "description": {
+          "type": "cds.String"
+        },
+        "price": {
+          "type": "cds.Decimal",
+          "precision": 9,
+          "scale": 2
+        },
+        "imageUrl": {
+          "type": "cds.String"
+        },
+        "restaurantId": {
+          "type": "cds.Association",
+          "target": "my.bookshop.Restaurants",
+          "keys": [
+            {
+              "ref": [
+                "ID"
+              ]
+            }
+          ]
+        },
+        "type": {
+          "type": "my.bookshop.ProductType"
+        }
+      }
+    },
+    "my.bookshop.orderStatus": {
+      "kind": "type",
+      "type": "cds.String",
+      "enum": {
+        "pendiente_de_aceptacion_restaurante": {},
+        "pendiente_de_aceptacion_repartidor": {},
+        "en_camino": {},
+        "recogido": {},
+        "entregado": {},
+        "cancelado": {}
+      }
+    },
+    "my.bookshop.Orders": {
+      "kind": "entity",
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "clientId": {
+          "type": "cds.Association",
+          "target": "my.bookshop.Clients",
+          "keys": [
+            {
+              "ref": [
+                "ID"
+              ]
+            }
+          ]
+        },
+        "restaurantId": {
+          "type": "cds.Association",
+          "target": "my.bookshop.Restaurants",
+          "keys": [
+            {
+              "ref": [
+                "ID"
+              ]
+            }
+          ]
+        },
+        "driverId": {
+          "type": "cds.Association",
+          "target": "my.bookshop.Drivers",
+          "keys": [
+            {
+              "ref": [
+                "ID"
+              ]
+            }
+          ]
+        },
+        "totalAmount": {
+          "type": "cds.Decimal",
+          "precision": 9,
+          "scale": 2
+        },
+        "status": {
+          "type": "my.bookshop.orderStatus",
+          "default": {
+            "val": "pendiente_de_aceptacion"
+          }
+        },
+        "createdAt": {
+          "type": "cds.Timestamp",
+          "default": {
+            "ref": [
+              "$now"
+            ]
+          }
+        },
+        "items": {
+          "type": "cds.Composition",
+          "cardinality": {
+            "max": "*"
+          },
+          "target": "my.bookshop.OrderItems",
+          "on": [
+            {
+              "ref": [
+                "items",
+                "orderId"
+              ]
+            },
+            "=",
+            {
+              "ref": [
+                "$self"
+              ]
+            }
+          ]
+        },
+        "codeVerificationLocal": {
+          "type": "cds.Integer"
+        },
+        "codeVerificationClient": {
+          "type": "cds.Integer"
+        }
+      }
+    },
+    "my.bookshop.OrderItems": {
+      "kind": "entity",
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "orderId": {
+          "type": "cds.Association",
+          "target": "my.bookshop.Orders",
+          "keys": [
+            {
+              "ref": [
+                "ID"
+              ]
+            }
+          ]
+        },
+        "productId": {
+          "type": "cds.Association",
+          "target": "my.bookshop.Products",
+          "keys": [
+            {
+              "ref": [
+                "ID"
+              ]
+            }
+          ]
+        },
+        "quantity": {
+          "type": "cds.Integer"
+        },
+        "unitPrice": {
+          "type": "cds.Decimal",
+          "precision": 9,
+          "scale": 2
+        },
+        "subtotal": {
+          "type": "cds.Decimal",
+          "precision": 9,
+          "scale": 2
+        }
+      }
+    },
+    "my.bookshop.Role": {
+      "kind": "type",
+      "type": "cds.String",
+      "enum": {
+        "cliente": {},
+        "repartidor": {},
+        "local": {}
+      }
+    },
+    "my.bookshop.Users": {
+      "kind": "entity",
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "email": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "password": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "role": {
+          "type": "my.bookshop.Role"
+        },
+        "name": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "phone": {
+          "type": "cds.String",
+          "length": 12
+        },
+        "driver": {
+          "type": "cds.Association",
+          "target": "my.bookshop.Drivers",
+          "on": [
+            {
+              "ref": [
+                "driver",
+                "userID"
+              ]
+            },
+            "=",
+            {
+              "ref": [
+                "$self"
+              ]
+            }
+          ]
+        },
+        "restaurant": {
+          "type": "cds.Association",
+          "target": "my.bookshop.Restaurants",
+          "on": [
+            {
+              "ref": [
+                "restaurant",
+                "userID"
+              ]
+            },
+            "=",
+            {
+              "ref": [
+                "$self"
+              ]
+            }
+          ]
+        },
+        "client": {
+          "type": "cds.Association",
+          "target": "my.bookshop.Clients",
+          "on": [
+            {
+              "ref": [
+                "client",
+                "userID"
+              ]
+            },
+            "=",
+            {
+              "ref": [
+                "$self"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "my.bookshop.VehicleType": {
+      "kind": "type",
+      "type": "cds.String",
+      "enum": {
+        "Moto": {},
+        "Bici": {},
+        "Coche": {}
+      }
+    },
+    "my.bookshop.Drivers": {
+      "kind": "entity",
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "userID": {
+          "type": "cds.Association",
+          "target": "my.bookshop.Users",
+          "keys": [
+            {
+              "ref": [
+                "ID"
+              ]
+            }
+          ]
+        },
+        "vehicleType": {
+          "type": "my.bookshop.VehicleType"
+        },
+        "vehiclePlate": {
+          "type": "cds.String",
+          "length": 7
+        },
+        "dni": {
+          "type": "cds.String",
+          "length": 20
+        },
+        "vehicleBrand": {
+          "type": "cds.String",
+          "length": 50
+        },
+        "vehicleModel": {
+          "type": "cds.String",
+          "length": 50
+        },
+        "vehicleColor": {
+          "type": "cds.String",
+          "length": 30
+        },
+        "drivingLicense": {
+          "type": "cds.String",
+          "length": 20
+        },
+        "hired": {
+          "type": "cds.Boolean",
+          "default": {
+            "val": false
+          }
+        }
+      }
+    },
+    "my.bookshop.Restaurants": {
+      "kind": "entity",
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "userID": {
+          "type": "cds.Association",
+          "target": "my.bookshop.Users",
+          "keys": [
+            {
+              "ref": [
+                "ID"
+              ]
+            }
+          ]
+        },
+        "cif": {
+          "type": "cds.String",
+          "length": 20
+        },
+        "address": {
+          "type": "cds.String",
+          "length": 200
+        },
+        "products": {
+          "type": "cds.Composition",
+          "cardinality": {
+            "max": "*"
+          },
+          "target": "my.bookshop.Products",
+          "on": [
+            {
+              "ref": [
+                "products",
+                "restaurantId"
+              ]
+            },
+            "=",
+            {
+              "ref": [
+                "$self"
+              ]
+            }
+          ]
+        },
+        "hired": {
+          "type": "cds.Boolean",
+          "default": {
+            "val": false
+          }
+        },
+        "stars": {
+          "type": "cds.Integer",
+          "default": {
+            "val": 0
+          }
+        }
+      }
+    },
+    "my.bookshop.Clients": {
+      "kind": "entity",
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "userID": {
+          "type": "cds.Association",
+          "target": "my.bookshop.Users",
+          "keys": [
+            {
+              "ref": [
+                "ID"
+              ]
+            }
+          ]
+        },
+        "defaultAddress": {
+          "type": "cds.String",
+          "length": 200
+        }
+      }
+    },
+    "my.bookshop.PushSubscriptions": {
+      "kind": "entity",
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "userId": {
+          "type": "cds.Association",
+          "target": "my.bookshop.Users",
+          "keys": [
+            {
+              "ref": [
+                "ID"
+              ]
+            }
+          ]
+        },
+        "endpoint": {
+          "type": "cds.String"
+        },
+        "p256dh": {
+          "type": "cds.String"
+        },
+        "auth": {
+          "type": "cds.String"
+        }
+      }
+    }
+  },
+  "meta": {
+    "creator": "CDS Compiler v5.9.14",
+    "flavor": "inferred"
+  },
+  "$version": "2.0"
+}

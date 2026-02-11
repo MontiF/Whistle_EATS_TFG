@@ -68,55 +68,61 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
 
     // Carga los pedidos disponibles o el pedido activo del repartidor
     async loadOrders() {
-
-
+        console.log(`[Dealer] 🔄 Cargando pedidos... (DriverID: ${this.driverId})`);
 
         if (this.driverId) {
-            const { data: activeOrder } = await this.orderService.getActiveOrder(this.driverId);
-            if (activeOrder) {
+            const { data: activeOrder, error: activeError } = await this.orderService.getActiveOrder(this.driverId);
+            if (activeError) console.error('[Dealer] Error buscando pedido activo:', activeError);
 
+            if (activeOrder) {
+                console.log('[Dealer] ✅ Encontrado pedido activo:', activeOrder.ID, 'Estado:', activeOrder.status);
                 this.activeOrder = activeOrder;
-                this.orders = [];
+                // NOTA: Ya no hacemos 'return' aquí ni vaciamos 'this.orders'
+                // Queremos que el repartidor vea qué más hay disponible.
                 this.updateRouteForActiveOrder();
-                return;
+            } else {
+                console.log('[Dealer] ℹ️ No hay pedido activo actualmente.');
+                this.activeOrder = null;
+                this.clearRoute();
             }
         }
 
-
         const { data, error } = await this.orderService.getPendingOrders();
         if (data) {
-
-            this.orders = data;
+            // Filtramos para no mostrar el pedido que ya tenemos activo como "disponible"
+            this.orders = data.filter((o: any) => o.ID !== this.activeOrder?.ID);
+            console.log(`[Dealer] 📦 Pedidos pendientes cargados: ${this.orders.length}`);
         } else {
-            console.error('DealerComponent: Error loading orders', error);
+            console.error('[Dealer] Error cargando pedidos pendientes:', error);
         }
     }
 
     // Actualiza la ruta en el mapa según el estado del pedido activo
     async updateRouteForActiveOrder() {
-        if (!this.activeOrder || !this.userLocation || !this.map) return;
+        if (!this.activeOrder || !this.userLocation || !this.map) {
+            console.log('[Dealer] ℹ️ Saltando actualización de ruta: falta pedido, ubicación o mapa.');
+            return;
+        }
 
         let destinationAddress = '';
         if (this.activeOrder.status === 'en_camino') {
-            // Si está en camino, el destino es el restaurante
             destinationAddress = this.activeOrder.restaurant.address;
-
         } else if (this.activeOrder.status === 'recogido') {
-            // Si ya lo recogió, el destino es la dirección del cliente
             destinationAddress = this.activeOrder.deliveryAddress;
-
         } else {
-            // En cualquier otro caso, no hay ruta que mostrar
             this.clearRoute();
             return;
         }
 
+        console.log(`[Dealer] 🗺️ Calculando ruta hacia: ${destinationAddress}`);
         const coords = await this.geocodingService.getCoordinates(destinationAddress);
         if (coords) {
             this.calculateRoute(this.userLocation, coords);
         } else {
-            console.warn('Could not find coordinates for address:', destinationAddress);
-            alert('No se pudo encontrar la ruta para esta dirección: ' + destinationAddress);
+            console.warn('[Dealer] ❌ No se encontraron coordenadas para:', destinationAddress);
+            // Quitamos el alert para no bloquear la app, basta con el warning en consola
+            // o podrías mostrar un aviso discreto en el HTML.
+            this.clearRoute();
         }
     }
 
@@ -165,15 +171,17 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
             return;
         }
 
-        const result = await this.orderService.acceptOrderByDriver(order.id, this.driverId);
+        console.log(`[Dealer] 👆 Intento de aceptación manual del pedido: ${order.ID}`);
+        const result = await this.orderService.acceptOrderByDriver(order.ID, this.driverId);
         if (result.success) {
+            console.log(`[Dealer] ✅ Pedido ${order.ID} aceptado con éxito.`);
             alert('Pedido aceptado!');
 
 
             this.activeOrder = {
                 ...order
             };
-            this.orders = [];
+            this.orders = this.orders.filter(o => o.ID !== order.ID);
             this.cdr.detectChanges();
 
 
@@ -183,6 +191,7 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
             await this.loadOrders();
             this.cdr.detectChanges();
         } else {
+            console.error('[Dealer] ❌ Error al aceptar el pedido:', result.error);
             alert('Error al aceptar el pedido.');
         }
     }
@@ -190,7 +199,7 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
     // Rechaza un pedido eliminándolo de la lista local
     rejectOrder(order: any) {
 
-        this.orders = this.orders.filter(o => o.id !== order.id);
+        this.orders = this.orders.filter(o => o.ID !== order.ID);
     }
 
     // Inicia el seguimiento de la ubicación del usuario
@@ -371,7 +380,7 @@ export class DealerComponent implements AfterViewInit, OnDestroy {
             return;
         }
 
-        const { success, error } = await this.orderService.verifyDeliveryCode(order.id, parseInt(order.verificationCode));
+        const { success, error } = await this.orderService.verifyDeliveryCode(order.ID, parseInt(order.verificationCode));
 
         if (success) {
             alert(`¡Pedido Entregado!`);

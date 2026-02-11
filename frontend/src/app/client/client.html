@@ -8,8 +8,8 @@
         <h2>Restaurantes Disponibles</h2>
 
         <div class="restaurant-list">
-            @for (restaurant of restaurants; track restaurant.id) {
-            <div class="restaurant-card" (click)="goToRestaurant(restaurant.id)">
+            @for (restaurant of restaurants; track restaurant.ID) {
+            <div class="restaurant-card" (click)="goToRestaurant(restaurant.ID)">
                 <div class="restaurant-info">
                     <h3>{{ restaurant.name }}</h3>
                     <div class="stars">

@@ -1,0 +1,11 @@
+{
+    "/api": {
+        "target": "http://localhost:4004/odata/v4/catalog",
+        "secure": false,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/api": ""
+        },
+        "logLevel": "debug"
+    }
+}

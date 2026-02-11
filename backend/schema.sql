@@ -74,6 +74,15 @@ CREATE TABLE my_bookshop_Clients (
   PRIMARY KEY(ID)
 );
 
+CREATE TABLE my_bookshop_PushSubscriptions (
+  ID VARCHAR(36) NOT NULL,
+  userId_ID VARCHAR(36),
+  endpoint VARCHAR(255),
+  p256dh VARCHAR(255),
+  auth VARCHAR(255),
+  PRIMARY KEY(ID)
+);
+
 CREATE VIEW CatalogService_Products AS SELECT
   Products_0.ID,
   Products_0.name,
@@ -110,7 +119,10 @@ CREATE VIEW CatalogService_Restaurants AS SELECT
   Restaurants_0.ID,
   Restaurants_0.userID_ID,
   userID_1.name AS name,
-  Restaurants_0.address
+  Restaurants_0.address,
+  Restaurants_0.hired,
+  Restaurants_0.stars,
+  Restaurants_0.cif
 FROM (my_bookshop_Restaurants AS Restaurants_0 LEFT JOIN my_bookshop_Users AS userID_1 ON Restaurants_0.userID_ID = userID_1.ID);
 
 CREATE VIEW CatalogService_Clients AS SELECT
@@ -118,4 +130,33 @@ CREATE VIEW CatalogService_Clients AS SELECT
   Clients_0.userID_ID,
   Clients_0.defaultAddress
 FROM my_bookshop_Clients AS Clients_0;
+
+CREATE VIEW CatalogService_Orders AS SELECT
+  Orders_0.ID,
+  Orders_0.clientId_ID,
+  Orders_0.restaurantId_ID,
+  Orders_0.driverId_ID,
+  Orders_0.totalAmount,
+  Orders_0.status,
+  Orders_0.createdAt,
+  Orders_0.codeVerificationLocal,
+  Orders_0.codeVerificationClient
+FROM my_bookshop_Orders AS Orders_0;
+
+CREATE VIEW CatalogService_OrderItems AS SELECT
+  OrderItems_0.ID,
+  OrderItems_0.orderId_ID,
+  OrderItems_0.productId_ID,
+  OrderItems_0.quantity,
+  OrderItems_0.unitPrice,
+  OrderItems_0.subtotal
+FROM my_bookshop_OrderItems AS OrderItems_0;
+
+CREATE VIEW CatalogService_PushSubscriptions AS SELECT
+  PushSubscriptions_0.ID,
+  PushSubscriptions_0.userId_ID,
+  PushSubscriptions_0.endpoint,
+  PushSubscriptions_0.p256dh,
+  PushSubscriptions_0.auth
+FROM my_bookshop_PushSubscriptions AS PushSubscriptions_0;
 

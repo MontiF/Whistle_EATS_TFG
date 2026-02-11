@@ -3,12 +3,14 @@ import { Injectable, inject } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
 import { CartItem } from './cart.service';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
     providedIn: 'root'
 })
 export class OrderService {
     private supabase: SupabaseClient;
+    private http = inject(HttpClient);
 
     constructor() {
         this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
@@ -40,37 +42,35 @@ export class OrderService {
                 const codeVerificationlocal = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
                 const codeVerificationClient = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
 
+                // En lugar de usar Supabase directo, usamos el API de CAP (backend)
+                // para que el disparador 'after CREATE' se active.
+                const orderPayload = {
+                    ID: orderId,
+                    clientId_ID: userId,
+                    restaurantId_ID: restaurantId,
+                    totalAmount: totalAmount,
+                    status: 'pendiente_de_aceptacion_restaurante',
+                    codeVerificationLocal: codeVerificationlocal,
+                    codeVerificationClient: codeVerificationClient
+                };
 
-
-                const { error: orderError } = await this.supabase
-                    .from('my_bookshop_orders')
-                    .insert({
-                        id: orderId,
-                        clientid_id: userId,
-                        restaurantid_id: restaurantId,
-                        totalamount: totalAmount,
-                        status: 'pendiente_de_aceptacion_restaurante',
-                        codeverificationlocal: codeVerificationlocal,
-                        codeverificationclient: codeVerificationClient,
-                    });
-
-                if (orderError) throw orderError;
-
+                console.log('Creando pedido vía CAP para activar notificaciones:', orderPayload);
+                await this.http.post(`${environment.apiUrl}/Orders`, orderPayload).toPromise();
 
                 const orderItemsData = items.map(item => ({
-                    id: crypto.randomUUID(),
-                    orderid_id: orderId,
-                    productid_id: item.product.id,
+                    ID: crypto.randomUUID(),
+                    orderId_ID: orderId,
+                    productId_ID: item.product.id,
                     quantity: item.quantity,
-                    unitprice: item.product.price,
+                    unitPrice: item.product.price,
                     subtotal: item.product.price * item.quantity
                 }));
 
-                const { error: itemsError } = await this.supabase
-                    .from('my_bookshop_orderitems')
-                    .insert(orderItemsData);
-
-                if (itemsError) throw itemsError;
+                console.log('Creando items del pedido vía CAP:', orderItemsData);
+                // Insertamos los items uno a uno o como array si el API lo permite
+                for (const item of orderItemsData) {
+                    await this.http.post(`${environment.apiUrl}/OrderItems`, item).toPromise();
+                }
             }
 
             return { success: true };
@@ -84,65 +84,21 @@ export class OrderService {
     // Obtiene todos los pedidos pendientes de aceptación
     async getPendingOrders() {
         try {
+            // OData: Traemos pedidos, expandiendo el restaurante (y su usuario) y el cliente
+            // CAMBIO: restaurant -> restaurantId, client -> clientId
+            const response: any = await this.http.get(`${environment.apiUrl}/Orders?$filter=status eq 'pendiente_de_aceptacion_repartidor'&$expand=restaurantId($expand=userID),clientId`).toPromise();
 
+            if (!response?.value) return { data: [], error: null };
 
-            const { data: orders, error: ordersError } = await this.supabase
-                .from('my_bookshop_orders')
-                .select('*')
-                .eq('status', 'pendiente_de_aceptacion_repartidor');
-
-            if (ordersError) {
-                console.error('Error fetching orders table:', ordersError);
-                throw ordersError;
-            }
-
-
-
-            if (!orders || orders.length === 0) return { data: [], error: null };
-
-
-            const restaurantIds = [...new Set(orders.map((o: any) => o.restaurantid_id))];
-            const { data: restaurants, error: restError } = await this.supabase
-                .from('my_bookshop_restaurants')
-                .select('*')
-                .in('id', restaurantIds);
-
-            if (restError) throw restError;
-
-
-            const restaurantUserIds = restaurants?.map((r: any) => r.userid_id) || [];
-            const { data: users, error: userError } = await this.supabase
-                .from('my_bookshop_users')
-                .select('id, name')
-                .in('id', restaurantUserIds);
-
-            if (userError) throw userError;
-
-            const userMap = new Map(users?.map((u: any) => [u.id, u.name]));
-            const restaurantMap = new Map(restaurants?.map((r: any) => [
-                r.id,
-                { ...r, name: userMap.get(r.userid_id) || 'Unknown Restaurant' }
-            ]));
-
-
-            const clientUserIds = [...new Set(orders.map((o: any) => o.clientid_id))];
-
-
-            const { data: clients, error: clientError } = await this.supabase
-                .from('my_bookshop_clients')
-                .select('*')
-                .in('userid_id', clientUserIds);
-
-
-            const clientMap = new Map(clients?.map((c: any) => [c.userid_id, c.defaultaddress]));
-
-            const enrichedOrders = orders.map((o: any) => ({
+            const enrichedOrders = response.value.map((o: any) => ({
                 ...o,
-                restaurant: restaurantMap.get(o.restaurantid_id),
-                deliveryAddress: clientMap.get(o.clientid_id) || 'Dirección no disponible'
+                restaurant: {
+                    ...o.restaurantId,
+                    name: o.restaurantId?.userID?.name || 'Unknown Restaurant'
+                },
+                // OJO: CDS devuelve camelCase 'defaultAddress'
+                deliveryAddress: o.clientId?.defaultAddress || 'Dirección no disponible'
             }));
-
-
 
             return { data: enrichedOrders, error: null };
         } catch (error) {
@@ -153,14 +109,9 @@ export class OrderService {
     //Permite al un restaurante aceptar un pedido
     async acceptOrderByRestaurant(orderId: string) {
         try {
-            const { error } = await this.supabase
-                .from('my_bookshop_orders')
-                .update({
-                    status: 'pendiente_de_aceptacion_repartidor'
-                })
-                .eq('id', orderId);
-
-            if (error) throw error;
+            await this.http.patch(`${environment.apiUrl}/Orders/${orderId}`, {
+                status: 'pendiente_de_aceptacion_repartidor'
+            }).toPromise();
             return { success: true };
         } catch (error) {
             return { success: false, error };
@@ -169,14 +120,9 @@ export class OrderService {
     //Permite al un restaurante rechazar un pedido
     async rejectOrderByRestaurant(orderId: string) {
         try {
-            const { error } = await this.supabase
-                .from('my_bookshop_orders')
-                .update({
-                    status: 'cancelado'
-                })
-                .eq('id', orderId);
-
-            if (error) throw error;
+            await this.http.patch(`${environment.apiUrl}/Orders/${orderId}`, {
+                status: 'cancelado_por_restaurante'
+            }).toPromise();
             return { success: true };
         } catch (error) {
             return { success: false, error };
@@ -186,15 +132,10 @@ export class OrderService {
     // Permite a un repartidor aceptar un pedido
     async acceptOrderByDriver(orderId: string, driverId: string) {
         try {
-            const { error } = await this.supabase
-                .from('my_bookshop_orders')
-                .update({
-                    status: 'en_camino',
-                    driverid_id: driverId
-                })
-                .eq('id', orderId);
-
-            if (error) throw error;
+            await this.http.patch(`${environment.apiUrl}/Orders/${orderId}`, {
+                status: 'en_camino',
+                driverId_ID: driverId
+            }).toPromise();
             return { success: true };
         } catch (error) {
             return { success: false, error };
@@ -204,50 +145,24 @@ export class OrderService {
     // Obtiene el pedido activo actual para un repartidor específico
     async getActiveOrder(driverId: string) {
         try {
+            // Un repartidor solo puede tener un pedido activo (en_camino o recogido)
+            const statusFilter = "(status eq 'en_camino' or status eq 'recogido')";
+            // CAMBIO: restaurant -> restaurantId, client -> clientId
+            const query = `${environment.apiUrl}/Orders?$filter=driverId_ID eq ${driverId} and ${statusFilter}&$expand=restaurantId($expand=userID),clientId`;
 
-            const { data: orders, error } = await this.supabase
-                .from('my_bookshop_orders')
-                .select('*')
-                .eq('driverid_id', driverId)
-                .in('status', ['en_camino', 'recogido'])
-                .maybeSingle();
+            const response: any = await this.http.get(query).toPromise();
 
-            if (error) throw error;
-            if (!orders) return { data: null, error: null };
+            if (!response?.value?.length) return { data: null, error: null };
 
-            const order = orders;
-
-
-            const { data: restaurant, error: restError } = await this.supabase
-                .from('my_bookshop_restaurants')
-                .select('*')
-                .eq('id', order.restaurantid_id)
-                .single();
-
-            if (restError) throw restError;
-
-
-            const { data: resUser, error: resUserError } = await this.supabase
-                .from('my_bookshop_users')
-                .select('name')
-                .eq('id', restaurant.userid_id)
-                .single();
-
-            if (resUserError) throw resUserError;
-
-
-            const { data: client, error: clientError } = await this.supabase
-                .from('my_bookshop_clients')
-                .select('defaultaddress')
-                .eq('userid_id', order.clientid_id)
-                .single();
-
-            if (clientError) console.warn('Could not fetch client address', clientError);
-
+            const order = response.value[0];
             const enrichedOrder = {
                 ...order,
-                restaurant: { ...restaurant, name: resUser.name },
-                deliveryAddress: client?.defaultaddress || 'Dirección no disponible'
+                restaurant: {
+                    ...order.restaurantId,
+                    name: order.restaurantId?.userID?.name || 'Unknown Restaurant'
+                },
+                // Mapear defaultAddress de client o usar string vacío
+                deliveryAddress: order.clientId?.defaultAddress || 'Dirección no disponible'
             };
 
             return { data: enrichedOrder, error: null };
@@ -260,72 +175,27 @@ export class OrderService {
     // Obtiene los pedidos asignados a un restaurante específico
     async getRestaurantOrders(restaurantId: string) {
         try {
+            // Filtro complejo: status IN (...) AND restaurantId = ...
+            // OData no tiene operador IN nativo en V4 standard simple, se usa (status eq X or status eq Y)
+            // O simplemente filtramos por restaurante y luego en cliente filtramos por estado si es más fácil, 
+            // pero mejor hacerlo en query.
+            const statusFilter = "(status eq 'en_camino' or status eq 'pendiente_de_aceptacion_restaurante' or status eq 'pendiente_de_aceptacion_repartidor')";
+            // CAMBIO: client -> clientId, restaurant -> restaurantId($expand=userID)
+            const query = `${environment.apiUrl}/Orders?$filter=restaurantId_ID eq ${restaurantId} and ${statusFilter}&$expand=clientId,items($expand=productId),restaurantId($expand=userID)&$orderby=ID desc`;
 
-            const { data: orders, error } = await this.supabase
-                .from('my_bookshop_orders')
-                .select('*')
-                .eq('restaurantid_id', restaurantId)
-                .in('status', ['en_camino', 'pendiente_de_aceptacion_restaurante', 'pendiente_de_aceptacion_repartidor'])
-                .order('id', { ascending: false });
+            const response: any = await this.http.get(query).toPromise();
 
-            if (error) throw error;
+            if (!response?.value) return { data: [], error: null };
 
-            if (!orders || orders.length === 0) return { data: [], error: null };
-
-
-            const clientUserIds = [...new Set(orders.map((o: any) => o.clientid_id))];
-            const { data: clients, error: clientError } = await this.supabase
-                .from('my_bookshop_clients')
-                .select('*')
-                .in('userid_id', clientUserIds);
-
-            if (clientError) console.warn('Error fetching clients for restaurant orders', clientError);
-
-            const clientMap = new Map(clients?.map((c: any) => [c.userid_id, c]));
-
-
-            const orderIds = orders.map((o: any) => o.id);
-            const { data: orderItems, error: itemsError } = await this.supabase
-                .from('my_bookshop_orderitems')
-                .select('*')
-                .in('orderid_id', orderIds);
-
-            if (itemsError) console.warn('Error fetching items for restaurant orders', itemsError);
-
-            if (orderItems && orderItems.length > 0) {
-
-                const productIds = [...new Set(orderItems.map((i: any) => i.productid_id))];
-                const { data: products, error: productsError } = await this.supabase
-                    .from('my_bookshop_products')
-                    .select('*')
-                    .in('id', productIds);
-
-                if (productsError) console.warn('Error fetching products for items', productsError);
-
-                const productsMap = new Map(products?.map((p: any) => [p.id, p]));
-
-
-                orderItems.forEach((item: any) => {
-                    item.product = productsMap.get(item.productid_id) || { name: 'Unknown Product', price: 0 };
-                });
-            }
-
-
-            const itemsMap = new Map<string, any[]>();
-            orderItems?.forEach((item: any) => {
-                if (!itemsMap.has(item.orderid_id)) {
-                    itemsMap.set(item.orderid_id, []);
-                }
-                itemsMap.get(item.orderid_id)?.push(item);
-            });
-
-            const enrichedOrders = orders.map((o: any) => {
-                const client = clientMap.get(o.clientid_id);
+            const enrichedOrders = response.value.map((o: any) => {
                 return {
                     ...o,
-                    clientName: client ? 'Cliente' : 'Desconocido',
-                    deliveryAddress: client?.defaultaddress || 'Dirección no disponible',
-                    items: itemsMap.get(o.id) || []
+                    clientName: 'Cliente', // Podríamos expandir User del cliente, pero 'Cliente' vale por ahora
+                    deliveryAddress: o.clientId?.defaultAddress || 'Dirección no disponible',
+                    items: o.items?.map((i: any) => ({
+                        ...i,
+                        product: i.productId || { name: 'Producto Eliminado', price: 0 }
+                    })) || []
                 };
             });
 
@@ -339,25 +209,12 @@ export class OrderService {
     // Verifica el código de recogida del pedido (local verifica al repartidor)
     async verifyOrderCode(orderId: string, inputCode: number): Promise<{ success: boolean; error?: any }> {
         try {
+            const response: any = await this.http.get(`${environment.apiUrl}/Orders/${orderId}`).toPromise();
 
-            const { data, error } = await this.supabase
-                .from('my_bookshop_orders')
-                .select('codeverificationlocal')
-                .eq('id', orderId)
-                .single();
-
-            if (error) throw error;
-
-            if (data && data.codeverificationlocal == inputCode) {
-
-                // Si coincidimos, actualizamos el estado a 'recogido'
-                const { error: updateError } = await this.supabase
-                    .from('my_bookshop_orders')
-                    .update({ status: 'recogido' })
-                    .eq('id', orderId);
-
-                if (updateError) throw updateError;
-
+            if (response && response.codeVerificationLocal == inputCode) {
+                await this.http.patch(`${environment.apiUrl}/Orders/${orderId}`, {
+                    status: 'recogido'
+                }).toPromise();
                 return { success: true };
             } else {
                 return { success: false, error: 'Código incorrecto' };
@@ -370,25 +227,12 @@ export class OrderService {
     // Verifica el código de entrega del pedido (cliente verifica al repartidor)
     async verifyDeliveryCode(orderId: string, inputCode: number): Promise<{ success: boolean; error?: any }> {
         try {
+            const response: any = await this.http.get(`${environment.apiUrl}/Orders/${orderId}`).toPromise();
 
-            const { data, error } = await this.supabase
-                .from('my_bookshop_orders')
-                .select('codeverificationclient')
-                .eq('id', orderId)
-                .single();
-
-            if (error) throw error;
-
-            if (data && data.codeverificationclient == inputCode) {
-
-                // Si el código es correcto, marcamos como 'entregado'
-                const { error: updateError } = await this.supabase
-                    .from('my_bookshop_orders')
-                    .update({ status: 'entregado' })
-                    .eq('id', orderId);
-
-                if (updateError) throw updateError;
-
+            if (response && response.codeVerificationClient == inputCode) {
+                await this.http.patch(`${environment.apiUrl}/Orders/${orderId}`, {
+                    status: 'entregado'
+                }).toPromise();
                 return { success: true };
             } else {
                 return { success: false, error: 'Código incorrecto' };
@@ -402,49 +246,31 @@ export class OrderService {
     // Obtiene el historial de pedidos de un cliente
     async getClientOrders(clientId: string) {
         try {
+            // Traemos pedidos ordenados por ID (tiempo) descendente
+            // Expandimos restaurant(con userID para el nombre) e items(con productId)
+            // CAMBIO: restaurant -> restaurantId, items(productId)
+            const query = `${environment.apiUrl}/Orders?$filter=clientId_ID eq ${clientId}&$expand=restaurantId($expand=userID),items($expand=productId)&$orderby=ID desc`;
 
-            const { data: orders, error } = await this.supabase
-                .from('my_bookshop_orders')
-                .select('*')
-                .eq('clientid_id', clientId)
-                .order('id', { ascending: false });
+            const response: any = await this.http.get(query).toPromise();
 
-            if (error) throw error;
+            if (!response?.value) return { data: [], error: null };
 
-            if (!orders || orders.length === 0) return { data: [], error: null };
-
-
-            const restaurantIds = [...new Set(orders.map((o: any) => o.restaurantid_id))];
-            const { data: restaurants, error: restError } = await this.supabase
-                .from('my_bookshop_restaurants')
-                .select('*')
-                .in('id', restaurantIds);
-
-            if (restError) throw restError;
-
-
-            const restaurantUserIds = restaurants?.map((r: any) => r.userid_id) || [];
-            const { data: users, error: userError } = await this.supabase
-                .from('my_bookshop_users')
-                .select('id, name')
-                .in('id', restaurantUserIds);
-
-            if (userError) throw userError;
-
-            const userMap = new Map(users?.map((u: any) => [u.id, u.name]));
-            const restaurantMap = new Map(restaurants?.map((r: any) => [
-                r.id,
-                { ...r, name: userMap.get(r.userid_id) || 'Unknown Restaurant' }
-            ]));
-
-            const enrichedOrders = orders.map((o: any) => ({
+            const enrichedOrders = response.value.map((o: any) => ({
                 ...o,
-                restaurant: restaurantMap.get(o.restaurantid_id),
+                restaurantName: o.restaurantId?.userID?.name || 'Unknown Restaurant',
+                // Aseguramos estructura compatible con la vista
+                restaurant: {
+                    ...o.restaurantId,
+                    name: o.restaurantId?.userID?.name || 'Unknown Restaurant'
+                },
+                items: o.items?.map((i: any) => ({
+                    ...i,
+                    product: i.productId || { name: 'Producto Eliminado', price: 0 }
+                })) || [],
                 statusText: this.getStatusText(o.status)
             }));
 
             return { data: enrichedOrders, error: null };
-
         } catch (error) {
             console.error('Error fetching client orders:', error);
             return { data: null, error };
@@ -467,24 +293,7 @@ export class OrderService {
     // Elimina un pedido y sus detalles de la base de datos
     async deleteOrder(orderId: string): Promise<{ success: boolean; error?: any }> {
         try {
-
-
-
-            const { error: itemsError } = await this.supabase
-                .from('my_bookshop_orderitems')
-                .delete()
-                .eq('orderid_id', orderId);
-
-            if (itemsError) throw itemsError;
-
-
-            const { error: orderError } = await this.supabase
-                .from('my_bookshop_orders')
-                .delete()
-                .eq('id', orderId);
-
-            if (orderError) throw orderError;
-
+            await this.http.delete(`${environment.apiUrl}/Orders/${orderId}`).toPromise();
             return { success: true };
         } catch (error) {
             console.error('Error deleting order:', error);

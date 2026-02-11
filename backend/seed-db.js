@@ -36,13 +36,13 @@ const SEED_DATA = {
         ['44444444-4444-4444-4444-444444444444', 'cliente2@test.com', '1234', 'cliente', 'Pepe Cliente']
     ],
     clients: [
-        ['cccccccc-cccc-cccc-cccc-cccccccccccc', '11111111-1111-1111-1111-111111111111', 'Calle Cliente 123']
+        ['cccccccc-cccc-cccc-cccc-cccccccccccc', '11111111-1111-1111-1111-111111111111', 'Calle de Braulio Gutiérrez 19, Madrid']
     ],
     drivers: [
         ['bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', '22222222-2222-2222-2222-222222222222', 'Moto', '1234ABC', '12345678A', 'Yamaha', 'MT-07', 'Negro', 'A2']
     ],
     restaurants: [
-        ['aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '33333333-3333-3333-3333-333333333333', 'B12345678', 'Calle Restaurante 1']
+        ['aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '33333333-3333-3333-3333-333333333333', 'B12345678', 'Calle de Gran Vía 32, Madrid']
     ],
     products: [
         ['10000000-0000-0000-0000-000000000001', 'Menu del dia', 'Menu completo con bebida', 12.50, 'https://placehold.co/600x400', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'menu'],
@@ -80,7 +80,7 @@ async function seed() {
         console.log('🌱 Seeding Drivers...');
         for (const d of SEED_DATA.drivers) {
             await client.query(
-                'INSERT INTO my_bookshop_Drivers (ID, userID_ID, vehicleType, vehiclePlate, dni, vehicleBrand, vehicleModel, vehicleColor, drivingLicense) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) ON CONFLICT (ID) DO NOTHING',
+                'INSERT INTO my_bookshop_Drivers (ID, userID_ID, vehicleType, vehiclePlate, dni, vehicleBrand, vehicleModel, vehicleColor, drivingLicense, hired) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, true) ON CONFLICT (ID) DO NOTHING',
                 d
             );
         }
@@ -89,7 +89,7 @@ async function seed() {
         console.log('🌱 Seeding Restaurants...');
         for (const r of SEED_DATA.restaurants) {
             await client.query(
-                'INSERT INTO my_bookshop_Restaurants (ID, userID_ID, cif, address) VALUES ($1, $2, $3, $4) ON CONFLICT (ID) DO NOTHING',
+                'INSERT INTO my_bookshop_Restaurants (ID, userID_ID, cif, address, hired) VALUES ($1, $2, $3, $4, true) ON CONFLICT (ID) DO NOTHING',
                 r
             );
         }

@@ -58,11 +58,11 @@
                     [class.active]="productType == 'complemento'">Complemento</button>
             </div>
         </div>
-        @for (product of products; track product.id) {
+        @for (product of products; track product.ID) {
         @if((productType == 'all' || productType == product.type) && (!searchProduct ||
         product.name?.toLowerCase()?.includes(searchProduct.toLowerCase()))){
         <div class="product-item">
-            @if (editingProduct?.id === product.id) {
+            @if (editingProduct?.ID === product.ID) {
             <form [formGroup]="productForm" (ngSubmit)="onSaveProduct()" class="edit-product-form">
                 <div id="product" class="product-item-wrapper">
                     <div id="texts" class="product-content">
@@ -99,7 +99,7 @@
                             <button type="button" (click)="cancelEdit()" class="action-btn btn-secondary">
                                 <span class="action-icon">✕</span>
                             </button>
-                            <button type="button" (click)="onDeleteProduct(product.id)" class="action-btn btn-danger">
+                            <button type="button" (click)="onDeleteProduct(product.ID)" class="action-btn btn-danger">
                                 <span class="action-icon">🗑</span>
                             </button>
                         </div>

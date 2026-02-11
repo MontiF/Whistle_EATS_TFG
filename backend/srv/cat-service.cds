@@ -12,9 +12,15 @@ service CatalogService {
         userID,
         userID.name as name,
         address,
-        products
+        products,
+        hired,
+        stars,
+        cif
     };
     entity Clients  as projection on db.Clients;
+    entity Orders   as projection on db.Orders;
+    entity OrderItems as projection on db.OrderItems;
+    entity PushSubscriptions as projection on db.PushSubscriptions;
     
     /**
      * Acción para registrar usuarios desde el backend, creando
@@ -37,4 +43,16 @@ service CatalogService {
         vehicleColor: String;
         drivingLicense: String;
     }) returns { ID: UUID };
+
+    
+    
+    /**
+     * Acción para calificar un restaurante.
+     */
+    action rateRestaurant(restaurantId: UUID, rating: Integer) returns { success: Boolean };
+
+    /**
+     * Acción de prueba para validar notificaciones
+     */
+    action sendTestNotification(userId: UUID) returns { success: Boolean; count: Integer };
 }

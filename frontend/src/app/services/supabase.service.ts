@@ -105,15 +105,8 @@ export class SupabaseService {
     //Obtiene el nombre del usuario
     async getUserName(userId: string): Promise<string | null> {
         try {
-            const { data, error } = await this.supabase
-                .from('my_bookshop_users')
-                .select('name')
-                .eq('id', userId)
-                .single();
-
-            if (error) throw error;
-
-            return data.name;
+            const response: any = await this.http.get(`${environment.apiUrl}/Users/${userId}`).toPromise();
+            return response?.name || null;
         } catch (err: any) {
             return null;
         }
@@ -122,39 +115,31 @@ export class SupabaseService {
     // Obtiene el rol y estado de contratación del usuario
     async getUserRole(userId: string): Promise<{ data: any, error: any }> {
         try {
+            // 1. Obtenemos el usuario base
+            const user: any = await this.http.get(`${environment.apiUrl}/Users/${userId}`).toPromise();
 
-            const { data: userData, error: userError } = await this.supabase
-                .from('my_bookshop_users')
-                .select('role')
-                .eq('id', userId)
-                .single();
+            if (!user) return { data: null, error: 'Usuario no encontrado' };
 
-            if (userError) return { data: null, error: userError };
-
-            const role = userData.role;
+            const role = user.role;
             let hired = false;
 
-
             if (role === 'repartidor') {
-                const { data: driverData, error: driverError } = await this.supabase
-                    .from('my_bookshop_drivers')
-                    .select('hired')
-                    .eq('userid_id', userId)
-                    .single();
+                try {
+                    // OData filter para buscar por userId_ID
+                    const drivers: any = await this.http.get(`${environment.apiUrl}/Drivers?$filter=userID_ID eq ${userId}`).toPromise();
+                    if (drivers?.value?.length > 0) {
+                        hired = drivers.value[0].hired;
+                    }
+                } catch (e) { console.warn('Driver check failed', e); }
 
-                if (!driverError && driverData) {
-                    hired = driverData.hired;
-                }
             } else if (role === 'local') {
-                const { data: restaurantData, error: restaurantError } = await this.supabase
-                    .from('my_bookshop_restaurants')
-                    .select('hired')
-                    .eq('userid_id', userId)
-                    .single();
+                try {
+                    const restaurants: any = await this.http.get(`${environment.apiUrl}/Restaurants?$filter=userID_ID eq ${userId}`).toPromise();
+                    if (restaurants?.value?.length > 0) {
+                        hired = restaurants.value[0].hired;
+                    }
+                } catch (e) { console.warn('Restaurant check failed', e); }
 
-                if (!restaurantError && restaurantData) {
-                    hired = restaurantData.hired;
-                }
             } else if (role === 'cliente') {
                 hired = true;
             }
@@ -170,15 +155,11 @@ export class SupabaseService {
     // Obtiene la calificación (estrellas) actual de un restaurante
     async getRestaurantStars(restaurantId: string) {
         try {
-            const { data: restaurantData, error: restaurantError } = await this.supabase
-                .from('my_bookshop_restaurants')
-                .select('stars')
-                .eq('id', restaurantId)
-                .single();
+            const response: any = await this.http.get(`${environment.apiUrl}/Restaurants/${restaurantId}`).toPromise();
 
-            if (restaurantError) throw restaurantError;
+            if (!response) throw new Error('Restaurante no encontrado');
 
-            return { data: restaurantData, error: null };
+            return { data: { stars: response.stars }, error: null };
         } catch (err: any) {
             return { data: null, error: err };
         }
@@ -187,26 +168,20 @@ export class SupabaseService {
     // Obtiene el perfil completo de un restaurante usando el ID de usuario
     async getRestaurantProfile(userId: string) {
         try {
+            // Buscamos el restaurante por userID_ID
+            const response: any = await this.http.get(`${environment.apiUrl}/Restaurants?$filter=userID_ID eq ${userId}`).toPromise();
 
-            const { data: restaurantData, error: restaurantError } = await this.supabase
-                .from('my_bookshop_restaurants')
-                .select('*')
-                .eq('userid_id', userId)
-                .single();
+            if (!response?.value?.length) {
+                return { data: null, error: 'Restaurante no encontrado' };
+            }
 
-            if (restaurantError) throw restaurantError;
+            const restaurantData = response.value[0];
 
-
-            const { data: userData, error: userError } = await this.supabase
-                .from('my_bookshop_users')
-                .select('name')
-                .eq('id', userId)
-                .single();
-
-            if (userError) throw userError;
+            // Obtenemos el nombre del usuario dueño
+            const user: any = await this.http.get(`${environment.apiUrl}/Users/${userId}`).toPromise();
 
             return {
-                data: { ...restaurantData, name: userData.name },
+                data: { ...restaurantData, name: user?.name || '' },
                 error: null
             };
         } catch (error: any) {
@@ -216,10 +191,12 @@ export class SupabaseService {
 
     // Obtiene la lista de productos de un restaurante específico
     async getRestaurantProducts(restaurantId: string) {
-        return await this.supabase
-            .from('my_bookshop_products')
-            .select('*')
-            .eq('restaurantid_id', restaurantId);
+        try {
+            const response: any = await this.http.get(`${environment.apiUrl}/Products?$filter=restaurantId_ID eq ${restaurantId}`).toPromise();
+            return { data: response.value, error: null };
+        } catch (error) {
+            return { data: null, error };
+        }
     }
 
     // Añade un nuevo producto al catálogo
@@ -231,58 +208,32 @@ export class SupabaseService {
         restaurantId: string,
         type: string
     }) {
-        const id = crypto.randomUUID();
-        return await this.supabase
-            .from('my_bookshop_products')
-            .insert({
-                id: id,
-                name: product.name,
-                description: product.description,
-                price: product.price,
-                imageurl: product.imageUrl,
-                restaurantid_id: product.restaurantId,
-                type: product.type
-            });
+        const payload = {
+            ID: crypto.randomUUID(),
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            imageUrl: product.imageUrl,
+            restaurantId_ID: product.restaurantId,
+            type: product.type
+        };
+
+        return await this.http.post(`${environment.apiUrl}/Products`, payload).toPromise();
     }
 
     // Obtiene todos los restaurantes registrados
     async getAllRestaurants() {
         try {
+            // Usamos $expand para traer el usuario asociado y obtener su nombre
+            const response: any = await this.http.get(`${environment.apiUrl}/Restaurants?$filter=hired eq true&$expand=userID`).toPromise();
 
-            const { data: restaurants, error: restError } = await this.supabase
-                .from('my_bookshop_restaurants')
-                .select('*')
-                .eq('hired', true); // Solo restaurantes contratados
-
-            if (restError) throw restError;
-
-            if (!restaurants || restaurants.length === 0) {
+            if (!response?.value) {
                 return { data: [], error: null };
             }
 
-
-            const userIds = restaurants.map((r: any) => r.userid_id || r.userID_ID).filter(id => id);
-
-            if (userIds.length === 0) {
-                return { data: restaurants, error: null };
-            }
-
-
-            const { data: users, error: userError } = await this.supabase
-                .from('my_bookshop_users')
-                .select('id, name')
-                .in('id', userIds);
-
-            if (userError) throw userError;
-
-
-            const userMap = new Map();
-            users?.forEach((u: any) => userMap.set(u.id, u.name));
-
-
-            const mappedData = restaurants.map((r: any) => ({
+            const mappedData = response.value.map((r: any) => ({
                 ...r,
-                name: userMap.get(r.userid_id || r.userID_ID) || 'Unknown Restaurant'
+                name: r.userID?.name || 'Unknown Restaurant'
             }));
 
             return {
@@ -296,46 +247,24 @@ export class SupabaseService {
     }
     // Obtiene el ID del conductor asociado a un usuario
     async getDriverId(userId: string): Promise<string | null> {
-        const { data, error } = await this.supabase
-            .from('my_bookshop_drivers')
-            .select('id')
-            .eq('userid_id', userId)
-            .single();
-
-        if (error || !data) return null;
-        return data.id;
+        try {
+            const response: any = await this.http.get(`${environment.apiUrl}/Drivers?$filter=userID_ID eq ${userId}`).toPromise();
+            if (response?.value?.length > 0) {
+                return response.value[0].ID;
+            }
+            return null;
+        } catch (error) {
+            return null;
+        }
     }
 
     // Actualiza la calificación de un restaurante con una nueva valoración
     async rateRestaurant(restaurantId: string, rating: number): Promise<{ success: boolean; error?: any }> {
         try {
-
-            const { data: currentData, error: fetchError } = await this.supabase
-                .from('my_bookshop_restaurants')
-                .select('stars')
-                .eq('id', restaurantId)
-                .single();
-
-            if (fetchError) throw fetchError;
-
-            const currentStars = currentData.stars || 0;
-
-
-            const average = (currentStars + rating) / 2;
-            const newStars = Math.round(average);
-
-
-
-
-            const { error: updateError } = await this.supabase
-                .from('my_bookshop_restaurants')
-                .update({ stars: newStars })
-                .eq('id', restaurantId);
-
-            if (updateError) throw updateError;
-
+            const payload = { restaurantId, rating };
+            // Llamamos a la Acción del backend
+            await this.http.post(`${environment.apiUrl}/rateRestaurant`, payload).toPromise();
             return { success: true };
-
         } catch (error) {
             console.error('Error rating restaurant:', error);
             return { success: false, error };
@@ -347,22 +276,16 @@ export class SupabaseService {
             name: product.name,
             description: product.description,
             price: product.price,
-            imageurl: product.imageUrl,
+            imageUrl: product.imageUrl,
             type: product.type
         };
 
-        return await this.supabase
-            .from('my_bookshop_products')
-            .update(updateData)
-            .eq('id', product.id);
+        return await this.http.patch(`${environment.apiUrl}/Products/${product.id}`, updateData).toPromise();
     }
 
     // Elimina un producto del catálogo
     async deleteProduct(productId: string) {
-        return await this.supabase
-            .from('my_bookshop_products')
-            .delete()
-            .eq('id', productId);
+        return await this.http.delete(`${environment.apiUrl}/Products/${productId}`).toPromise();
     }
 
     // Subir foto de producto al bucket 'products' y devuelve la URL pública

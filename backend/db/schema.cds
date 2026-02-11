@@ -89,3 +89,11 @@ entity Clients {
     userID : Association to Users;
     defaultAddress : String(200);
 }
+
+entity PushSubscriptions {
+    key ID : UUID;
+    userId : Association to Users;
+    endpoint : String;
+    p256dh : String;
+    auth : String;
+}

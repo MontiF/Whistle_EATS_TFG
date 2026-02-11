@@ -55,7 +55,7 @@
     </div>
 
     <div class="products-grid">
-        @for (product of products; track product.id) {
+        @for (product of products; track product.ID) {
         @if((productType == 'all' || productType == product.type) && (!searchProduct ||
         product.name?.toLowerCase()?.includes(searchProduct.toLowerCase()))){
         <div class="product-card">
@@ -70,9 +70,9 @@
                 </div>
 
                 <div class="cart-controls">
-                    @if (getQuantity(product.id) > 0) {
+                    @if (getQuantity(product.ID) > 0) {
                     <button class="control-btn remove" (click)="removeFromCart(product)">-</button>
-                    <span class="quantity">{{ getQuantity(product.id) }}</span>
+                    <span class="quantity">{{ getQuantity(product.ID) }}</span>
                     }
                     <button class="control-btn add" (click)="addToCart(product)">+</button>
                 </div>

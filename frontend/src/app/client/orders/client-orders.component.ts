@@ -76,13 +76,13 @@ export class ClientOrdersComponent implements OnInit {
         if (!this.selectedOrder || this.currentRating === 0 || this.isSubmitting) return;
 
 
-        const restaurantId = this.selectedOrder.restaurantid_id;
-        const orderId = this.selectedOrder.id;
+        const restaurantId = this.selectedOrder.restaurant.ID;
+        const orderId = this.selectedOrder.ID;
         const rating = this.currentRating;
 
 
 
-        this.orders = this.orders.filter(o => o.id !== orderId);
+        this.orders = this.orders.filter(o => o.ID !== orderId);
 
 
         // Cerramos modal y mostramos alerta inmediatamente
@@ -118,7 +118,7 @@ export class ClientOrdersComponent implements OnInit {
     }
 
     deleteOrder(order: any) {
-        this.orderService.deleteOrder(order.id).then(() => {
+        this.orderService.deleteOrder(order.ID).then(() => {
             this.refreshOrders();
         });
     }

@@ -11,7 +11,7 @@
         @if (loading) {
         <p class="loading">Cargando pedidos...</p>
         } @else {
-        @for (order of orders; track order.id) {
+        @for (order of orders; track order.ID) {
         <div class="order-card" [class]="order.status">
             <div class="order-header">
                 <h3>{{ order.restaurant.name }}</h3>

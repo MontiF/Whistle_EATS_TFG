@@ -190,13 +190,13 @@ export class RestaurantComponent {
         if (this.editingProduct) {
             result = await this.supabaseService.updateProduct({
                 ...productData,
-                id: this.editingProduct.id
+                id: this.editingProduct.ID
             });
         } else {
             result = await this.supabaseService.addProduct(productData);
         }
 
-        const { error } = result;
+        const { error } = result as any;
 
         if (!error) {
             this.loadProducts();
@@ -218,11 +218,11 @@ export class RestaurantComponent {
             return;
         }
 
-        const { error } = await this.supabaseService.deleteProduct(productId);
+        const { error } = (await this.supabaseService.deleteProduct(productId)) as any;
 
         if (!error) {
             this.loadProducts();
-            if (this.editingProduct && this.editingProduct.id === productId) {
+            if (this.editingProduct && this.editingProduct.ID === productId) {
                 this.cancelEdit();
             }
         } else {
